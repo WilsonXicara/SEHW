@@ -1,0 +1,17 @@
+DELIMITER //
+
+DROP TRIGGER IF EXISTS crearRecibo //
+CREATE TRIGGER crearRecibo AFTER INSERT ON Recibo FOR EACH ROW
+BEGIN
+	-- En Recibo, inicilamente Peso y Saldo tienen el mismo valor. Dicho valor se suma a Cafe.SaldoBodega
+	UPDATE Cafe SET SaldoBodega = SaldoBodega + NEW.Saldo WHERE Id = NEW.Cafe_Id;
+END //
+
+DROP TRIGGER IF EXISTS crearConsumo //
+CREATE TRIGGER crearConsumo AFTER INSERT ON Consumo FOR EACH ROW
+BEGIN
+	-- En Recibo, disminuyo la Cantidad de Sacos de Nylon y de Yuta, y el Saldo (peso del producto)
+	UPDATE Recibo SET SacosNylon = SacosNylon - NEW.CantidadSacosNylon, SacosYuta = SacosYuta - NEW.CantidadSacosYuta, Saldo = Saldo - NEW.PesoUtilizado WHERE Codigo = NEW.Recibo_Codigo;
+END //
+
+DELIMITER ;
