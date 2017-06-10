@@ -24,15 +24,15 @@ public class ConectarConBD {
 
     public ConectarConBD() {
         nombreBD = "ecegua";
-        usuarioBD = "eceguaxela";
-        contraseñaBD = "usuario";
+        usuarioBD = "root";
+        contraseñaBD = "";
         conectar_con_bd();
     }
     private void conectar_con_bd() {
         try {
             String miIP = InetAddress.getLocalHost().getHostAddress();
             Class.forName("org.gjt.mm.mysql.Driver");
-            conexion = DriverManager.getConnection("jdbc:mysql://" + miIP + "/" + nombreBD, usuarioBD, contraseñaBD);
+            conexion = DriverManager.getConnection("jdbc:mysql://localhost/" + nombreBD, usuarioBD, contraseñaBD);
         } catch (ClassNotFoundException | SQLException | UnknownHostException ex) {
             JOptionPane.showMessageDialog(null, "No se pudo conectar con la Base de Datos.\n\n"+ex.getMessage(), "Erro de conexión", JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(ConectarConBD.class.getName()).log(Level.SEVERE, null, ex);
