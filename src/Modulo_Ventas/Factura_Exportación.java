@@ -6,6 +6,7 @@
 package Modulo_Ventas;
 
 import Modulo_Principal.Principal;
+import java.awt.Frame;
 import java.awt.event.ItemEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,27 +43,7 @@ public class Factura_Exportación extends javax.swing.JFrame {
         initComponents();
         this.base = base;
         this.padre = padre;
-        Id_Cliente = new ArrayList<>();
-        Id_cafe = new ArrayList<>();
-        posicion_cliente = -1;
-        posicion_cafe = -1;
-        Statement b = base.createStatement();
-        ResultSet consultab = b.executeQuery("SELECT * From clientes_exportacion");
-        while(consultab.next()){
-            String Id = consultab.getString(1);
-            String nombre = consultab.getString(2);
-            Id_Cliente.add(Id);
-            Tx_nombre.addItem(nombre);
-        }
-        
-        b = base.createStatement();
-        consultab = b.executeQuery("SELECT cafe.Id,cafe.Nombre FROM cafe WHERE cafe.Oro = 1 AND cafe.Pergamino = 0;");
-        while(consultab.next()){
-            String Id = consultab.getString(1);
-            String Nombre = consultab.getString(2);
-            Id_cafe.add(Id);
-            Tx_cafe.addItem(Nombre);
-        }
+        actualizar();
         
     }
     
@@ -91,10 +72,16 @@ public class Factura_Exportación extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         Tx_quintales = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jButton1.setText("Crear Cliente");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         Tx_nombre.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -128,6 +115,13 @@ public class Factura_Exportación extends javax.swing.JFrame {
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Regresar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
             }
         });
 
@@ -177,8 +171,10 @@ public class Factura_Exportación extends javax.swing.JFrame {
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(Tx_cafe, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(175, 175, 175)
-                        .addComponent(jButton2)))
+                        .addGap(149, 149, 149)
+                        .addComponent(jButton2)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton3)))
                 .addContainerGap(27, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -211,7 +207,9 @@ public class Factura_Exportación extends javax.swing.JFrame {
                     .addComponent(jLabel7)
                     .addComponent(Tx_quintales, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
                 .addGap(27, 27, 27))
         );
 
@@ -274,6 +272,15 @@ public class Factura_Exportación extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new Crear_cliente(new Frame(), true, base).setVisible(true);
+        actualizar();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -308,6 +315,34 @@ public class Factura_Exportación extends javax.swing.JFrame {
             }
         });
     }
+    
+    public void actualizar(){
+        try {
+            Id_Cliente = new ArrayList<>();
+            Id_cafe = new ArrayList<>();
+            posicion_cliente = -1;
+            posicion_cafe = -1;
+            Statement b = base.createStatement();
+            ResultSet consultab = b.executeQuery("SELECT * From clientes_exportacion");
+            while(consultab.next()){
+                String Id = consultab.getString(1);
+                String nombre = consultab.getString(2);
+                Id_Cliente.add(Id);
+                Tx_nombre.addItem(nombre);
+            }
+            
+            b = base.createStatement();
+            consultab = b.executeQuery("SELECT cafe.Id,cafe.Nombre FROM cafe WHERE cafe.Oro = 1 AND cafe.Pergamino = 0;");
+            while(consultab.next()){
+                String Id = consultab.getString(1);
+                String Nombre = consultab.getString(2);
+                Id_cafe.add(Id);
+                Tx_cafe.addItem(Nombre);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Factura_Exportación.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> Tx_cafe;
@@ -319,6 +354,7 @@ public class Factura_Exportación extends javax.swing.JFrame {
     private javax.swing.JTextField Tx_serie;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
