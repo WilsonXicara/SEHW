@@ -38,6 +38,7 @@ public class Factura_Local extends javax.swing.JFrame {
     
     /**
      * Creates new form Factura_Local
+     * @param base
      */
     public Factura_Local(Connection base,Principal padre) {
         try {
