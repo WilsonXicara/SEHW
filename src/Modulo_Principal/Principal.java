@@ -301,14 +301,15 @@ public class Principal extends javax.swing.JFrame {
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         try {
-            new Factura_Exportación(conexion, this).setVisible(true);
+            new Factura_Exportacion(conexion, this).setVisible(true);
         } catch (SQLException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        new Factura_Local(conexion, this).setVisible(true);
+        Factura_Local a = new Factura_Local(conexion, this);
+        a.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void item_pagar_cafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_pagar_cafeActionPerformed

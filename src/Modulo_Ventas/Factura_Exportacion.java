@@ -22,7 +22,7 @@ import javax.swing.JOptionPane;
  *
  * @author USUARIO
  */
-public class Factura_Exportación extends javax.swing.JFrame {
+public class Factura_Exportacion extends javax.swing.JFrame {
     Connection base;
     Principal padre;
     ArrayList<String> Id_Cliente;
@@ -32,14 +32,14 @@ public class Factura_Exportación extends javax.swing.JFrame {
     /**
      * Creates new form Factura_Exportación
      */
-    public Factura_Exportación() {
+    public Factura_Exportacion() {
         initComponents();
     }
 
     /**
      * Creates new form Factura_Exportación
      */
-    public Factura_Exportación(Connection base,Principal padre) throws SQLException {
+    public Factura_Exportacion(Connection base,Principal padre) throws SQLException {
         initComponents();
         this.base = base;
         this.padre = padre;
@@ -225,7 +225,7 @@ public class Factura_Exportación extends javax.swing.JFrame {
                 consultab.next();
                 Tx_dirección.setText(consultab.getString(1));
             } catch (SQLException ex) {
-                Logger.getLogger(Factura_Exportación.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Factura_Exportacion.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_Tx_nombreItemStateChanged
@@ -259,7 +259,7 @@ public class Factura_Exportación extends javax.swing.JFrame {
                             JOptionPane.showMessageDialog(this, "Ya existe una factura con este numero de serie \n y numero de factura", "ERROR", JOptionPane.ERROR_MESSAGE, null);
                         }
                     } catch (SQLException ex) {
-                        Logger.getLogger(Factura_Exportación.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Factura_Exportacion.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }else{
                     JOptionPane.showMessageDialog(this, "El precio y la cantidad de café es necesario", "ERROR", JOptionPane.ERROR_MESSAGE, null);
@@ -273,7 +273,8 @@ public class Factura_Exportación extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        new Crear_cliente(new Frame(), true, base).setVisible(true);
+        Crear_cliente a = new Crear_cliente(new Frame(), true, base);
+        a.setVisible(true);
         actualizar();
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -298,20 +299,21 @@ public class Factura_Exportación extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Factura_Exportación.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Factura_Exportacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Factura_Exportación.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Factura_Exportacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Factura_Exportación.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Factura_Exportacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Factura_Exportación.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Factura_Exportacion.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Factura_Exportación().setVisible(true);
+                new Factura_Exportacion().setVisible(true);
             }
         });
     }
@@ -340,7 +342,7 @@ public class Factura_Exportación extends javax.swing.JFrame {
                 Tx_cafe.addItem(Nombre);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(Factura_Exportación.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Factura_Exportacion.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
