@@ -15,3 +15,9 @@ BEGIN
 END //
 
 DELIMITER ;
+
+****    Cambios en el Modelo Relacional    ****
+Tabla Recibo
+	- Cambié el 'Codigo' por Id y lo dejé autoincrementable.
+	- Agregué el campo 'Numero' en sustitución del campo 'Codigo'
+	- Cambié el nombre del campo 'Factura Especial_Id' por ´Factura_Especial_Id´

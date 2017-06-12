@@ -8,14 +8,16 @@ package Modulo_Principal;
 import Modulo_Inventario.Movimientos;
 import Modulo_Inventario.InventarioRecibos;
 import Modulo_Produccion.Nota_Rendimiento;
-import Modulo_Produccion.OrdenTrilla;
-import Modulo_Produccion.Recibo;
 import Modulo_Crear.CrearTipoCafe;
 import Modulo_Crear.Crear_Productor;
 import Modulo_Crear.Crear_Organizacion;
 import Modulo_Crear.CrearCosecha;
 import Conexion.ConectarConBD;
-import Modulo_Ventas.Factura_Exportacion;
+import Modulo_Compras.CrearFacturaEspecial;
+import Modulo_Inventario.Cotizacion;
+import Modulo_Produccion.CrearOrdenTrilla;
+import Modulo_Produccion.CrearRecibo;
+import Modulo_Ventas.Factura_Exportación;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Image;
 import java.sql.Connection;
@@ -75,6 +77,10 @@ public class Principal extends javax.swing.JFrame {
         jMenu3 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
+        menu_pagos = new javax.swing.JMenu();
+        item_pagar_cafe = new javax.swing.JMenuItem();
+        menu_cotizacion = new javax.swing.JMenu();
+        item_cotizar_cafe = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
@@ -176,6 +182,30 @@ public class Principal extends javax.swing.JFrame {
 
         menu.add(jMenu3);
 
+        menu_pagos.setText("Pagos");
+
+        item_pagar_cafe.setText("Facturar Recibos");
+        item_pagar_cafe.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_pagar_cafeActionPerformed(evt);
+            }
+        });
+        menu_pagos.add(item_pagar_cafe);
+
+        menu.add(menu_pagos);
+
+        menu_cotizacion.setText("Cotizaciones");
+
+        item_cotizar_cafe.setText("Cotizar Café Existente");
+        item_cotizar_cafe.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_cotizar_cafeActionPerformed(evt);
+            }
+        });
+        menu_cotizacion.add(item_cotizar_cafe);
+
+        menu.add(menu_cotizacion);
+
         jMenu1.setText("Ventas");
 
         jMenuItem7.setText("Facturas Exportación");
@@ -227,12 +257,12 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_item_crear_tipo_cafeActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        Recibo nuevoRecibo = new Recibo(this, true, conexion);
+        CrearRecibo nuevoRecibo = new CrearRecibo(conexion, this);
         nuevoRecibo.setVisible(nuevoRecibo.getHacerVisible());
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        OrdenTrilla nuevaOrden = new OrdenTrilla(this, true, conexion);
+        CrearOrdenTrilla nuevaOrden = new CrearOrdenTrilla(conexion, this);
         nuevaOrden.setVisible(nuevaOrden.getHacerVisible());
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
@@ -282,6 +312,16 @@ public class Principal extends javax.swing.JFrame {
         a.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
+    private void item_pagar_cafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_pagar_cafeActionPerformed
+        CrearFacturaEspecial nuevaFacturaE = new CrearFacturaEspecial(conexion, this);
+        nuevaFacturaE.setVisible(nuevaFacturaE.getHacerVisible());
+    }//GEN-LAST:event_item_pagar_cafeActionPerformed
+
+    private void item_cotizar_cafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_cotizar_cafeActionPerformed
+        Cotizacion nuevaC = new Cotizacion(conexion, this);
+        nuevaC.setVisible(nuevaC.getHacerVisible());
+    }//GEN-LAST:event_item_cotizar_cafeActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -318,8 +358,10 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem item_cotizar_cafe;
     private javax.swing.JMenuItem item_crear_cosecha;
     private javax.swing.JMenuItem item_crear_tipo_cafe;
+    private javax.swing.JMenuItem item_pagar_cafe;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
@@ -337,6 +379,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JMenuBar menu;
+    private javax.swing.JMenu menu_cotizacion;
     private javax.swing.JMenu menu_crear;
+    private javax.swing.JMenu menu_pagos;
     // End of variables declaration//GEN-END:variables
 }
