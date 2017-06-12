@@ -15,8 +15,9 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author pc
+ * Ventana que permite crear un nuevo Café, ya sea Pergamino u Oro. El Café Pergamino es el que se compra como materia prima,
+ * en cuanto el Café Oro es el producto que la empresa vende.
+ * @author Wilson Xicará
  */
 public class CrearTipoCafe extends javax.swing.JDialog {
     private Connection conexion;
@@ -41,27 +42,27 @@ public class CrearTipoCafe extends javax.swing.JDialog {
     public CrearTipoCafe(java.awt.Frame parent, boolean modal, Connection conexion) {
         super(parent, modal);
         initComponents();
-        hacerVisible = true;
         this.conexion = conexion;
-        modelTabla = (DefaultTableModel) tabla_cafe_existentes.getModel();
-        tabla_cafe_existentes.getColumnModel().getColumn(0).setPreferredWidth(40);
-        tabla_cafe_existentes.getColumnModel().getColumn(1).setPreferredWidth(100);
-        tabla_cafe_existentes.getColumnModel().getColumn(2).setPreferredWidth(100);
+        hacerVisible = true;
         
         // Obtengo el listado de todos los cafés almacenados en la Base de Datos
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            ResultSet cCafe = sentencia.executeQuery("SELECT Nombre, Pergamino, Oro FROM Cafe");
+            ResultSet cCafe = sentencia.executeQuery("SELECT Nombre, Pergamino FROM Cafe");
+            modelTabla = (DefaultTableModel) tabla_cafe_existentes.getModel();
             while (cCafe.next())
-                modelTabla.addRow(new String[]{""+(tabla_cafe_existentes.getRowCount()+1), cCafe.getString("Nombre"), (cCafe.getBoolean("Pergamino")?"Pergamino":"Oro")});
+                modelTabla.addRow(new String[]{
+                    ""+(tabla_cafe_existentes.getRowCount()+1),
+                    cCafe.getString("Nombre"),
+                    (cCafe.getBoolean("Pergamino") ? "Pergamino" : "Oro")
+                });
             cCafe.close();
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         } catch (SQLException ex) {
             hacerVisible = false;
             JOptionPane.showMessageDialog(this, "No se puede obtener el listado de los tipos de café existentes.\n\n"+ex.getMessage(), "Error al obtener datos", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(CrearTipoCafe.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(CrearTipoCafe.class.getName()).log(Level.SEVERE, null, ex);
         }
-            
     }
 
     /**
@@ -88,7 +89,6 @@ public class CrearTipoCafe extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Crear nuevo tipo de café");
 
-        panel_nuevo_cafe.setBackground(new java.awt.Color(0, 204, 153));
         panel_nuevo_cafe.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del café:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14))); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -165,19 +165,18 @@ public class CrearTipoCafe extends javax.swing.JDialog {
                 .addGroup(panel_nuevo_cafeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(nombre_cafe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panel_nuevo_cafeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(check_pergamino)
                     .addComponent(check_oro))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
                 .addGroup(panel_nuevo_cafeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(crear_cafe)
                     .addComponent(salir))
                 .addContainerGap())
         );
 
-        panel_cafe_existentes.setBackground(new java.awt.Color(0, 204, 153));
         panel_cafe_existentes.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Tipos de café existentes:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14))); // NOI18N
 
         tabla_cafe_existentes.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -207,6 +206,11 @@ public class CrearTipoCafe extends javax.swing.JDialog {
         tabla_cafe_existentes.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tabla_cafe_existentes.setRowHeight(25);
         jScrollPane1.setViewportView(tabla_cafe_existentes);
+        if (tabla_cafe_existentes.getColumnModel().getColumnCount() > 0) {
+            tabla_cafe_existentes.getColumnModel().getColumn(0).setPreferredWidth(40);
+            tabla_cafe_existentes.getColumnModel().getColumn(1).setPreferredWidth(200);
+            tabla_cafe_existentes.getColumnModel().getColumn(2).setPreferredWidth(90);
+        }
 
         javax.swing.GroupLayout panel_cafe_existentesLayout = new javax.swing.GroupLayout(panel_cafe_existentes);
         panel_cafe_existentes.setLayout(panel_cafe_existentesLayout);
@@ -216,7 +220,7 @@ public class CrearTipoCafe extends javax.swing.JDialog {
         );
         panel_cafe_existentesLayout.setVerticalGroup(
             panel_cafe_existentesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -226,17 +230,17 @@ public class CrearTipoCafe extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panel_nuevo_cafe, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panel_cafe_existentes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panel_cafe_existentes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panel_nuevo_cafe, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(panel_nuevo_cafe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panel_cafe_existentes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_cafe_existentes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -253,6 +257,10 @@ public class CrearTipoCafe extends javax.swing.JDialog {
 
     private void crear_cafeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crear_cafeActionPerformed
         String nuevoCafe = nombre_cafe.getText();
+        if (nuevoCafe.length() == 0) {
+            JOptionPane.showMessageDialog(this, "Asigne un Nombre al tipo de café", "Datos incompletos", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         boolean tipoPergamino = check_pergamino.isSelected();
         // Inicio la búsqueda de coincidencias
         int cantidad = tabla_cafe_existentes.getRowCount(), iterador;
@@ -269,12 +277,13 @@ public class CrearTipoCafe extends javax.swing.JDialog {
         } else {    // Se puede crear el nuevo tipo de café
             try {
                 conexion.prepareStatement("INSERT INTO Cafe(Nombre, Pergamino, Oro) VALUES('"+nuevoCafe+"', "+tipoPergamino+", "+!tipoPergamino+")").executeUpdate();
-                JOptionPane.showMessageDialog(this, nuevoCafe+" de tipo "+(tipoPergamino?"Pergamino":"Oro")+" ha sido creado exitosamente.", "Cosecha creada", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "El Café '"+nuevoCafe+"' de tipo "+(tipoPergamino?"Pergamino":"Oro")+" ha sido creado exitosamente.", "Cosecha creada", JOptionPane.INFORMATION_MESSAGE);
                 // Muestro el Nuevo café en la Tabla
                 modelTabla.addRow(new String[]{""+(tabla_cafe_existentes.getRowCount()+1), nuevoCafe, tipoPergamino?"Pergamino":"Oro"});
+                nombre_cafe.setText("");
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error de conexión con la Base de Datos.\nConsulte con el programador.\n\nDescripción:\n"+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                Logger.getLogger(CrearTipoCafe.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(CrearTipoCafe.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_crear_cafeActionPerformed
@@ -300,15 +309,12 @@ public class CrearTipoCafe extends javax.swing.JDialog {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CrearTipoCafe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CrearTipoCafe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CrearTipoCafe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(CrearTipoCafe.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        
         //</editor-fold>
 
         /* Create and display the dialog */

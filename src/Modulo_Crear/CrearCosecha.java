@@ -5,6 +5,7 @@
  */
 package Modulo_Crear;
 
+import Excepciones.ExcepcionDatosIncorrectos;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,7 +16,8 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
+ * Ventana que permite crear una nueva Cosecha, con un Período de un año. Una Cosecha es un tiempo al que se puede relacionar
+ * las actividades de producción y todo lo que haga la empresa.
  * @author Wilson Xicará
  */
 public class CrearCosecha extends javax.swing.JDialog {
@@ -41,24 +43,26 @@ public class CrearCosecha extends javax.swing.JDialog {
     public CrearCosecha(java.awt.Frame parent, boolean modal, Connection conexion) {
         super(parent, modal);
         initComponents();
-        hacerVisible = true;
         this.conexion = conexion;
-        modelTabla = (DefaultTableModel)tabla_cosechas_existentes.getModel();
-        tabla_cosechas_existentes.getColumnModel().getColumn(0).setPreferredWidth(40);
-        tabla_cosechas_existentes.getColumnModel().getColumn(1).setPreferredWidth(250);
+        hacerVisible = true;
         
-        // Obtengo el listado de todas las cosechas almacenadas en la Base de Datos
+        // Obtengo el listado de todas las Cosechas almacenadas en la Base de Datos
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            ResultSet cCosechas = sentencia.executeQuery("SELECT Nombre FROM Cosecha");
+            ResultSet cCosechas = sentencia.executeQuery("SELECT Nombre, YEAR(Fecha_Inicio) Inicio, YEAR(Fecha_Fin) Fin FROM Cosecha");
+            modelTabla = (DefaultTableModel)tabla_cosechas_existentes.getModel();
             while (cCosechas.next())
-                modelTabla.addRow(new String[]{""+(tabla_cosechas_existentes.getRowCount()+1), cCosechas.getString(1)});
+                modelTabla.addRow(new String[]{
+                    ""+(tabla_cosechas_existentes.getRowCount()+1),
+                    cCosechas.getString("Nombre"),
+                    cCosechas.getString("Inicio")+"-"+cCosechas.getString("Fin")
+                });
             cCosechas.close();
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         } catch (SQLException ex) {
             hacerVisible = false;
-            JOptionPane.showMessageDialog(this, "No se puede obtener el listado de cosechas anteriores.\n\n"+ex.getMessage(), "Error al obtener datos", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(CrearCosecha.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "No se puede obtener el listado de Cosechas anteriores.\n\n"+ex.getMessage(), "Error al obtener datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(CrearCosecha.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -76,6 +80,10 @@ public class CrearCosecha extends javax.swing.JDialog {
         nombre_cosecha = new javax.swing.JTextField();
         crear_cosecha = new javax.swing.JButton();
         salir = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        anio_inicio = new com.toedter.calendar.JYearChooser();
+        anio_fin = new com.toedter.calendar.JYearChooser();
         panel_cosechas_existentes = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabla_cosechas_existentes = new javax.swing.JTable();
@@ -83,7 +91,6 @@ public class CrearCosecha extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Crear nueva cosecha");
 
-        panel_nueva_cosecha.setBackground(new java.awt.Color(0, 204, 153));
         panel_nueva_cosecha.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de la nueva cosecha:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14))); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -107,23 +114,45 @@ public class CrearCosecha extends javax.swing.JDialog {
             }
         });
 
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel2.setText("Período:");
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel3.setText("-");
+
+        anio_inicio.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        anio_inicio.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                anio_inicioPropertyChange(evt);
+            }
+        });
+
+        anio_fin.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+
         javax.swing.GroupLayout panel_nueva_cosechaLayout = new javax.swing.GroupLayout(panel_nueva_cosecha);
         panel_nueva_cosecha.setLayout(panel_nueva_cosechaLayout);
         panel_nueva_cosechaLayout.setHorizontalGroup(
             panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panel_nueva_cosechaLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(panel_nueva_cosechaLayout.createSequentialGroup()
-                        .addGap(8, 8, 8)
+                        .addContainerGap()
                         .addComponent(crear_cosecha)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(salir))
                     .addGroup(panel_nueva_cosechaLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nombre_cosecha, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panel_nueva_cosechaLayout.createSequentialGroup()
+                                .addComponent(anio_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(anio_fin, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(nombre_cosecha, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panel_nueva_cosechaLayout.setVerticalGroup(
@@ -131,16 +160,21 @@ public class CrearCosecha extends javax.swing.JDialog {
             .addGroup(panel_nueva_cosechaLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(nombre_cosecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                    .addComponent(nombre_cosecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(anio_fin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(anio_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addGroup(panel_nueva_cosechaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(crear_cosecha)
                     .addComponent(salir))
                 .addContainerGap())
         );
 
-        panel_cosechas_existentes.setBackground(new java.awt.Color(0, 204, 153));
         panel_cosechas_existentes.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Cosechas existentes:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 14))); // NOI18N
 
         tabla_cosechas_existentes.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -149,14 +183,14 @@ public class CrearCosecha extends javax.swing.JDialog {
 
             },
             new String [] {
-                "No.", "Nombre"
+                "No.", "Nombre", "Período"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -170,6 +204,11 @@ public class CrearCosecha extends javax.swing.JDialog {
         tabla_cosechas_existentes.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tabla_cosechas_existentes.setRowHeight(25);
         jScrollPane1.setViewportView(tabla_cosechas_existentes);
+        if (tabla_cosechas_existentes.getColumnModel().getColumnCount() > 0) {
+            tabla_cosechas_existentes.getColumnModel().getColumn(0).setPreferredWidth(40);
+            tabla_cosechas_existentes.getColumnModel().getColumn(1).setPreferredWidth(150);
+            tabla_cosechas_existentes.getColumnModel().getColumn(2).setPreferredWidth(100);
+        }
 
         javax.swing.GroupLayout panel_cosechas_existentesLayout = new javax.swing.GroupLayout(panel_cosechas_existentes);
         panel_cosechas_existentes.setLayout(panel_cosechas_existentesLayout);
@@ -179,7 +218,7 @@ public class CrearCosecha extends javax.swing.JDialog {
         );
         panel_cosechas_existentesLayout.setVerticalGroup(
             panel_cosechas_existentesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -189,17 +228,17 @@ public class CrearCosecha extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(panel_nueva_cosecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panel_cosechas_existentes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(panel_cosechas_existentes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panel_nueva_cosecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .addComponent(panel_nueva_cosecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panel_cosechas_existentes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panel_cosechas_existentes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -207,28 +246,37 @@ public class CrearCosecha extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void crear_cosechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crear_cosechaActionPerformed
-        String nuevaCosecha = nombre_cosecha.getText();
-        // Inicio la búsqueda de coincidencias
-        int cantidad = tabla_cosechas_existentes.getRowCount(), iterador;
-        boolean yaExiste = false;
-        for (iterador=0; iterador<cantidad; iterador++) {
-            yaExiste = nuevaCosecha.equals((String)tabla_cosechas_existentes.getValueAt(iterador, 1));
-            if (yaExiste)
-                break;
-        }   // Hasta aquí se garantiza la comparación de la Nueva Cosecha con los existentes
-        if (yaExiste) {
-            tabla_cosechas_existentes.setRowSelectionInterval(iterador, iterador);
-            JOptionPane.showMessageDialog(this, nuevaCosecha+" ya existe", "Datos repetidos", JOptionPane.ERROR_MESSAGE);
-        } else {    // Se puede crear la nueva cosecha
-            try {
-                conexion.prepareStatement("INSERT INTO Cosecha(Nombre) VALUES('"+nuevaCosecha+"')").executeUpdate();
-                JOptionPane.showMessageDialog(this, nuevaCosecha+" ha sido creada exitosamente.", "Cosecha creada", JOptionPane.INFORMATION_MESSAGE);
+        // De una Cosecha se puede repetir el Nombre, más no el Período
+        try {
+            validar_datos();
+            String nuevaCosecha = nombre_cosecha.getText(), nuevoPeriodo = ""+anio_inicio.getYear()+"-"+anio_fin.getYear();
+            int cantidad = tabla_cosechas_existentes.getRowCount(), iterador;
+            boolean yaExiste = false;
+            for (iterador=0; iterador<cantidad; iterador++) {
+                yaExiste = nuevoPeriodo.equals((String)tabla_cosechas_existentes.getValueAt(iterador, 2));
+                if (yaExiste)
+                    break;
+            }   // Hasta aquí se garantiza la comparación de la Nueva Cosecha con los existentes
+            if (yaExiste) {
+                tabla_cosechas_existentes.setRowSelectionInterval(iterador, iterador);
+                JOptionPane.showMessageDialog(this, "Ya existe una Cosecha en el Período "+nuevoPeriodo, "Datos repetidos", JOptionPane.ERROR_MESSAGE);
+            } else {    // Se puede crear la nueva cosecha
+                conexion.prepareStatement("INSERT INTO Cosecha(Nombre, Fecha_Inicio, Fecha_Fin) VALUES('"+nuevaCosecha+"', "+anio_inicio.getYear()+", "+anio_fin.getYear()+")").executeUpdate();
+                JOptionPane.showMessageDialog(this, "Cosecha '"+nuevaCosecha+" "+nuevoPeriodo+"' creada exitosamente!", "Cosecha creada", JOptionPane.INFORMATION_MESSAGE);
                 // Agrego la nueva cosecha a la Tabla para su visualización
-                modelTabla.addRow(new String[]{""+(tabla_cosechas_existentes.getRowCount()+1), nuevaCosecha});
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error de conexión con la Base de Datos.\nConsulte con el programador.\n\nDescripción:\n"+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                Logger.getLogger(CrearCosecha.class.getName()).log(Level.SEVERE, null, ex);
+                modelTabla.addRow(new String[]{
+                    ""+(tabla_cosechas_existentes.getRowCount()+1),
+                    nuevaCosecha,
+                    nuevoPeriodo
+                });
+                nombre_cosecha.setText("");
             }
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en Datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(CrearCosecha.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error de conexión con la Base de Datos.\nConsulte con el programador.\n\nDescripción:\n"+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(CrearCosecha.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_crear_cosechaActionPerformed
 
@@ -236,6 +284,18 @@ public class CrearCosecha extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_salirActionPerformed
 
+    private void anio_inicioPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_anio_inicioPropertyChange
+        anio_fin.setYear(anio_inicio.getYear() + 1);
+    }//GEN-LAST:event_anio_inicioPropertyChange
+
+    private void validar_datos() throws ExcepcionDatosIncorrectos {
+        if (nombre_cosecha.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Asigne un nombre a la Cosecha (como identificador)");
+        if (anio_inicio.getYear() > anio_fin.getYear())
+            throw new ExcepcionDatosIncorrectos("El Período de la Cosecha es incorrecto.\nPruebe asignar el Período '"+anio_inicio.getYear()+"-"+(anio_inicio.getYear()+1)+"'");
+        if ((anio_inicio.getYear()+1) < anio_fin.getYear())
+            throw new ExcepcionDatosIncorrectos("El Período de la Cosecha debe ser de 1 año.\nPruebe asignar el Período '"+anio_inicio.getYear()+"-"+(anio_inicio.getYear()+1)+"'");
+    }
     public boolean getHacerVisible() { return hacerVisible; }
     /**
      * @param args the command line arguments
@@ -253,15 +313,12 @@ public class CrearCosecha extends javax.swing.JDialog {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CrearCosecha.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(CrearCosecha.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(CrearCosecha.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(CrearCosecha.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        
         //</editor-fold>
 
         /* Create and display the dialog */
@@ -280,8 +337,12 @@ public class CrearCosecha extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.toedter.calendar.JYearChooser anio_fin;
+    private com.toedter.calendar.JYearChooser anio_inicio;
     private javax.swing.JButton crear_cosecha;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField nombre_cosecha;
     private javax.swing.JPanel panel_cosechas_existentes;

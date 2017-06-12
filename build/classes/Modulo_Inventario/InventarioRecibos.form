@@ -204,6 +204,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="saldo_total">
       <Properties>
+        <Property name="editable" type="boolean" value="false"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="11" style="1"/>
         </Property>
@@ -303,7 +304,7 @@
         </Component>
         <Component class="com.toedter.calendar.JDateChooser" name="fecha_inicio">
           <Properties>
-            <Property name="dateFormatString" type="java.lang.String" value="yyyy/MM/dd"/>
+            <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
@@ -315,7 +316,7 @@
         </Component>
         <Component class="com.toedter.calendar.JDateChooser" name="fecha_fin">
           <Properties>
-            <Property name="dateFormatString" type="java.lang.String" value="yyyy/MM/dd"/>
+            <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
@@ -381,6 +382,7 @@
                 <StringItem index="1" value="Cafe"/>
               </StringArray>
             </Property>
+            <Property name="selectedIndex" type="int" value="-1"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>

@@ -5,6 +5,7 @@
  */
 package Modulo_Inventario;
 
+import Excepciones.ExcepcionDatosIncorrectos;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,22 +39,16 @@ public class InventarioRecibos extends javax.swing.JFrame {
         listaIDCosecha = new ArrayList<>();
         listaIDCafe = new ArrayList<>();
         listaIDProductor = new ArrayList<>();
-        modelRecibos = (DefaultTableModel) tabla_recibos.getModel();
         
+        // Obtengo los datos, desde la Base de Datos, necesarios para visualizar los Recibos
         try {
-            ResultSet cConsulta;
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta;
             // Obtengo el listado de las Cosechas existentes
-            cConsulta = sentencia.executeQuery("SELECT * FROM Cosecha");
+            cConsulta = sentencia.executeQuery("SELECT Id, CONCAT(Nombre, ' (', Fecha_fin, '-', Fecha_inicio, ')') nombreCosecha FROM Cosecha");
             while (cConsulta.next()) {
                 listaIDCosecha.add(cConsulta.getInt("Id"));
-                cosecha.addItem(cConsulta.getString("Nombre"));
-            }
-            // Obtengo el listado de todos los tipos de Café Pergamino
-            cConsulta = sentencia.executeQuery("SELECT Id, Nombre FROM Cafe WHERE Pergamino = 1");
-            while (cConsulta.next()) {
-                tipo_cafe.addItem(cConsulta.getString("Nombre")+" Pergamino");
-                listaIDCafe.add(cConsulta.getInt("Id"));
+                cosecha.addItem(cConsulta.getString("nombreCosecha"));
             }
             // Obtengo el listado de todos los Productor
             cConsulta = sentencia.executeQuery("SELECT Id, Nombre FROM Productor");
@@ -61,13 +56,32 @@ public class InventarioRecibos extends javax.swing.JFrame {
                 listaIDProductor.add(cConsulta.getInt("Id"));
                 productor.addItem(cConsulta.getString("Nombre"));
             }
+            // Obtengo el listado de todos los tipos de Café Pergamino
+            cConsulta = sentencia.executeQuery("SELECT Id, Nombre FROM Cafe WHERE Pergamino = 1");
+            while (cConsulta.next()) {
+                listaIDCafe.add(cConsulta.getInt("Id"));
+                tipo_cafe.addItem(cConsulta.getString("Nombre")+" (Pergamino)");
+            }
+            // Verifico que exista por lo menos una Cosecha, un Tipo de Café Pergamino y un Productor
+            hacerVisible = !(listaIDCosecha.isEmpty() || listaIDProductor.isEmpty() || listaIDCafe.isEmpty());
+            if (!hacerVisible) {
+                String mensaje = "No se puede mostrar el Inventario de Recibos pues falta lo siguiente:";
+                mensaje+= (listaIDCosecha.isEmpty()) ? "\n -> Cosechas" : "";
+                mensaje+= (listaIDProductor.isEmpty()) ? "\n -> Productores" : "";
+                mensaje+= (listaIDCafe.isEmpty()) ? "\n -> Café tipo Pergamino" : "";
+                mensaje+= "\n\nConsulte con el Administrador para proporcionar dichos datos\na la Base de Datos e inténtelo nuevamente.";
+                JOptionPane.showMessageDialog(this, mensaje, "Datos faltantes", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             
+            // Realizo otras configuraciones importantes
+            modelRecibos = (DefaultTableModel) tabla_recibos.getModel();
             panel_busqueda_avanzada.setVisible(false);
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         } catch (SQLException ex) {
             hacerVisible = false;
             JOptionPane.showMessageDialog(this, "Error al intentar recuperar datos."+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(InventarioRecibos.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(InventarioRecibos.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -143,6 +157,7 @@ public class InventarioRecibos extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("Saldo total:");
 
+        saldo_total.setEditable(false);
         saldo_total.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         saldo_total.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
@@ -155,13 +170,13 @@ public class InventarioRecibos extends javax.swing.JFrame {
             }
         });
 
-        fecha_inicio.setDateFormatString("yyyy/MM/dd");
+        fecha_inicio.setDateFormatString("dd/MM/yyyy");
         fecha_inicio.setEnabled(false);
 
         etiqueta_fecha_inicio.setText("Inicio:");
         etiqueta_fecha_inicio.setEnabled(false);
 
-        fecha_fin.setDateFormatString("yyyy/MM/dd");
+        fecha_fin.setDateFormatString("dd/MM/yyyy");
         fecha_fin.setEnabled(false);
 
         etiqueta_fecha_fin.setText("Fin:");
@@ -190,6 +205,7 @@ public class InventarioRecibos extends javax.swing.JFrame {
         jLabel3.setText("Ordenar por");
 
         ordenar_por.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Saldo", "Cafe" }));
+        ordenar_por.setSelectedIndex(-1);
 
         javax.swing.GroupLayout panel_busqueda_avanzadaLayout = new javax.swing.GroupLayout(panel_busqueda_avanzada);
         panel_busqueda_avanzada.setLayout(panel_busqueda_avanzadaLayout);
@@ -311,52 +327,6 @@ public class InventarioRecibos extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void mostrar_inventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_inventarioActionPerformed
-        modelRecibos.setRowCount(0);
-        Calendar fechaI = fecha_inicio.getCalendar(), fechaF = fecha_fin.getCalendar();
-        String fechaInicio = (fechaI!=null) ? ""+fechaI.get(Calendar.YEAR)+"-"+(fechaI.get(Calendar.MONTH)+1)+"-"+fechaI.get(Calendar.DAY_OF_MONTH) : "";
-        String fechaFin = (fechaF!=null) ? ""+fechaF.get(Calendar.YEAR)+"-"+(fechaF.get(Calendar.MONTH)+1)+"-"+fechaF.get(Calendar.DAY_OF_MONTH) : "";
-        // Siempre se dará que tipo_cafe.getSelectedIndex() != -1
-        String instruccion = "SELECT Recibo.Codigo idRecibo, Recibo.Fecha, Cosecha.Nombre Cosecha, Cafe.Nombre Cafe, Productor.Nombre Productor, Recibo.NumEnvio, Recibo.SacosNylon, Recibo.SacosYuta, Recibo.Peso, Recibo.Saldo FROM Recibo ";
-        instruccion+= "INNER JOIN Cosecha ON Recibo.Cosecha_Id = Cosecha.Id ";
-        instruccion+= "INNER JOIN Cafe ON Recibo.Cafe_Id = Cafe.Id ";
-        instruccion+= "INNER JOIN Productor ON Recibo.Productor_Id = Productor.Id ";
-        instruccion+= "WHERE Recibo.Saldo "+(check_recibos_activos.isSelected()?"=":">")+" 0";
-        if (check_busqueda_avanzada.isSelected()) {
-            instruccion+= (check_fecha.isSelected()?" AND Fecha BETWEEN '"+fechaInicio+"' AND '"+fechaFin+"' ":"");
-            instruccion+= (check_cosecha.isSelected()?" AND Cosecha.Id = "+listaIDCosecha.get(cosecha.getSelectedIndex()):"");
-            instruccion+= (check_productor.isSelected()?" AND Productor.Id = "+listaIDProductor.get(productor.getSelectedIndex()):"");
-        }
-        instruccion+= " ORDER BY "+(String)ordenar_por.getSelectedItem();
-        System.out.println("Instruccion = "+instruccion);
-        try {
-            float saldoTotal = 0.0f;
-            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            // Obtengo el listado de todos los recibos que concuerdan con la búsqueda
-            ResultSet cConsulta = sentencia.executeQuery(instruccion);
-            while (cConsulta.next()) {
-                saldoTotal+= cConsulta.getFloat("Saldo");
-                modelRecibos.addRow(new String[]{
-                    ""+(tabla_recibos.getRowCount()+1),
-                    cConsulta.getString("idRecibo"),
-                    cConsulta.getString("Fecha"),
-                    cConsulta.getString("Cosecha"),
-                    cConsulta.getString("Cafe"),
-                    cConsulta.getString("Productor"),
-                    cConsulta.getString("NumEnvio"),
-                    cConsulta.getString("SacosNylon"),
-                    cConsulta.getString("SacosYuta"),
-                    cConsulta.getString("Peso"),
-                    cConsulta.getString("Saldo")
-                });
-            }
-            // Muestra del Saldo total del Café seleccionado
-            saldo_total.setText(""+saldoTotal);
-        } catch (SQLException ex) {
-            Logger.getLogger(InventarioRecibos.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_mostrar_inventarioActionPerformed
-
     private void check_busqueda_avanzadaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_check_busqueda_avanzadaItemStateChanged
         panel_busqueda_avanzada.setVisible(check_busqueda_avanzada.isSelected());
     }//GEN-LAST:event_check_busqueda_avanzadaItemStateChanged
@@ -371,6 +341,7 @@ public class InventarioRecibos extends javax.swing.JFrame {
             ordenar_por.addItem("Fecha");
         else
             ordenar_por.removeItem("Fecha");
+        ordenar_por.setSelectedIndex(-1);
     }//GEN-LAST:event_check_fechaItemStateChanged
 
     private void check_cosechaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_check_cosechaItemStateChanged
@@ -379,6 +350,7 @@ public class InventarioRecibos extends javax.swing.JFrame {
             ordenar_por.addItem("Cosecha");
         else
             ordenar_por.removeItem("Cosecha");
+        ordenar_por.setSelectedIndex(-1);
     }//GEN-LAST:event_check_cosechaItemStateChanged
 
     private void check_productorItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_check_productorItemStateChanged
@@ -387,8 +359,73 @@ public class InventarioRecibos extends javax.swing.JFrame {
             ordenar_por.addItem("Productor");
         else
             ordenar_por.removeItem("Productor");
+        ordenar_por.setSelectedIndex(-1);
     }//GEN-LAST:event_check_productorItemStateChanged
 
+    private void mostrar_inventarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_inventarioActionPerformed
+        // Se borrarán los registros de la búsqueda anterior siempre que la nueva búsqueda se realice
+        try {                                                   
+            validar_filtro_busqueda();
+            modelRecibos.setRowCount(0);
+            Calendar fechaI = fecha_inicio.getCalendar(), fechaF = fecha_fin.getCalendar();
+            String fechaInicio = (fechaI!=null) ? ""+fechaI.get(Calendar.YEAR)+"-"+(fechaI.get(Calendar.MONTH)+1)+"-"+fechaI.get(Calendar.DAY_OF_MONTH) : "";
+            String fechaFin = (fechaF!=null) ? ""+fechaF.get(Calendar.YEAR)+"-"+(fechaF.get(Calendar.MONTH)+1)+"-"+fechaF.get(Calendar.DAY_OF_MONTH) : "";
+            // Siempre se dará que tipo_cafe.getSelectedIndex() != -1 (pues debe existir por lo menos uno)
+            String instruccion = "SELECT Recibo.Numero numeroRecibo, Recibo.Fecha, Cosecha.Nombre Cosecha, Cafe.Nombre Cafe, Productor.Nombre Productor, Recibo.NumEnvio, Recibo.SacosNylon, Recibo.SacosYuta, Recibo.Peso, Recibo.Saldo FROM Recibo ";
+            instruccion+= "INNER JOIN Cosecha ON Recibo.Cosecha_Id = Cosecha.Id ";
+            instruccion+= "INNER JOIN Cafe ON Recibo.Cafe_Id = Cafe.Id ";
+            instruccion+= "INNER JOIN Productor ON Recibo.Productor_Id = Productor.Id ";
+            instruccion+= "WHERE Recibo.Saldo "+(check_recibos_activos.isSelected()?"=":">")+" 0";
+            if (check_busqueda_avanzada.isSelected()) {
+                instruccion+= (check_fecha.isSelected()?" AND Fecha BETWEEN '"+fechaInicio+"' AND '"+fechaFin+"' ":"");
+                instruccion+= (check_cosecha.isSelected()?" AND Cosecha.Id = "+listaIDCosecha.get(cosecha.getSelectedIndex()):"");
+                instruccion+= (check_productor.isSelected()?" AND Productor.Id = "+listaIDProductor.get(productor.getSelectedIndex()):"");
+            }
+            instruccion+= " ORDER BY "+(String)ordenar_por.getSelectedItem();
+            
+            // Obtengo el listado de todos los Recibos que concuerdan con la búsqueda
+            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta = sentencia.executeQuery(instruccion);
+            float saldoTotal = 0.0f;
+            while (cConsulta.next()) {
+                saldoTotal+= cConsulta.getFloat("Saldo");
+                modelRecibos.addRow(new String[]{
+                    ""+(tabla_recibos.getRowCount()+1),
+                    cConsulta.getString("numeroRecibo"),
+                    cConsulta.getString("Fecha"),
+                    cConsulta.getString("Cosecha"),
+                    cConsulta.getString("Cafe"),
+                    cConsulta.getString("Productor"),
+                    cConsulta.getString("NumEnvio"),
+                    cConsulta.getString("SacosNylon"),
+                    cConsulta.getString("SacosYuta"),
+                    cConsulta.getString("Peso"),
+                    cConsulta.getString("Saldo")
+                });
+            }
+            // Muestra del Saldo total del Café seleccionado
+            saldo_total.setText(""+saldoTotal+" qq");
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(InventarioRecibos.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "No se pueden obtener los datos desde la Base de Datos.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(InventarioRecibos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_mostrar_inventarioActionPerformed
+
+    private void validar_filtro_busqueda() throws ExcepcionDatosIncorrectos {
+        if (check_busqueda_avanzada.isSelected()) {
+            if (check_fecha.isSelected()) {
+                if (fecha_inicio.getDate() == null)
+                    throw new ExcepcionDatosIncorrectos("Especifique la Fecha Inicio del rango de búsqueda");
+                if (fecha_fin.getDate() == null)
+                    throw new ExcepcionDatosIncorrectos("Especifique la Fecha Fin del rango de búsqueda");
+            }
+            if (ordenar_por.getSelectedIndex() == -1)
+                throw new ExcepcionDatosIncorrectos("Especifique el campo de Ordenación de la búsqueda");
+        }
+    }
     public boolean getHacerVisible() { return hacerVisible; }
     /**
      * @param args the command line arguments
@@ -406,15 +443,14 @@ public class InventarioRecibos extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(InventarioRecibos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(InventarioRecibos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(InventarioRecibos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(InventarioRecibos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        
         //</editor-fold>
         //</editor-fold>
 
