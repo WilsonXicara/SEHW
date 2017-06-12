@@ -15,7 +15,7 @@ import Modulo_Crear.Crear_Productor;
 import Modulo_Crear.Crear_Organizacion;
 import Modulo_Crear.CrearCosecha;
 import Conexion.ConectarConBD;
-import Modulo_Ventas.Factura_Exportación;
+import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Image;
 import java.sql.Connection;
@@ -271,14 +271,15 @@ public class Principal extends javax.swing.JFrame {
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         try {
-            new Factura_Exportación(conexion, this).setVisible(true);
+            new Factura_Exportacion(conexion, this).setVisible(true);
         } catch (SQLException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        new Factura_Local(conexion, this).setVisible(true);
+        Factura_Local a = new Factura_Local(conexion, this);
+        a.setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     /**
