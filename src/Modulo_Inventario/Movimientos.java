@@ -335,6 +335,7 @@ public class Movimientos extends javax.swing.JFrame {
             RowSorter<TableModel> aux = new TableRowSorter<TableModel>(tabla);
             tabla.setRowCount(0);
             informacion.setRowSorter(aux);
+            System.out.println(tipo_actualizacion);
             if(tipo_actualizacion == 1){
                 Statement b;
                 b = base.createStatement();
