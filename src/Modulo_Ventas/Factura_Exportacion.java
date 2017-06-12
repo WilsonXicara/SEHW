@@ -273,7 +273,8 @@ public class Factura_Exportacion extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        new Crear_cliente(new Frame(), true, base).setVisible(true);
+        Crear_cliente a = new Crear_cliente(new Frame(), true, base);
+        a.setVisible(true);
         actualizar();
     }//GEN-LAST:event_jButton1ActionPerformed
 

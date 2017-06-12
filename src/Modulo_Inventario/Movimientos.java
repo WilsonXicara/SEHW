@@ -283,6 +283,7 @@ public class Movimientos extends javax.swing.JFrame {
     private void tx_cafe_oroItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tx_cafe_oroItemStateChanged
         if(evt.getStateChange() == ItemEvent.SELECTED){
             posicion_café_oro = tx_cafe_oro.getSelectedIndex();
+            
             Actualizar_Tabla();
         }
     }//GEN-LAST:event_tx_cafe_oroItemStateChanged
@@ -393,6 +394,45 @@ public class Movimientos extends javax.swing.JFrame {
                     agregar[6] = peso;
                     tabla.addRow(agregar);
                 }
+                //Agregar todos los consumos de cafe oro
+                b= base.createStatement();
+                consultab = b.executeQuery("SELECT factura.Serie,factura.Numero,factura.Fecha, detalle_factura.Cantidad, cafe.Nombre FROM detalle_factura INNER JOIN factura ON detalle_factura.Factura_Id = factura.Id INNER JOIN cafe ON detalle_factura.Cafe_Id = cafe.Id");
+                while(consultab.next()){
+                    String fecha = consultab.getString(3);
+                    String factura = "Factura Serie "+consultab.getString(1);
+                    String numero = consultab.getString(2);
+                    String nombre = consultab.getString(5);
+                    String peso =consultab.getString(4);
+                    String[] agregar = new String[7];
+                    agregar[0] = fecha;
+                    agregar[1] = factura;
+                    agregar[2] = numero;
+                    agregar[3] = "Oro";
+                    agregar[4] = nombre;
+                    agregar[5] = "";
+                    agregar[6] = peso;
+                    tabla.addRow(agregar);
+                }
+                
+                b= base.createStatement();
+                consultab = b.executeQuery("SELECT factura_exportacion.Serie,factura_exportacion.Numero,factura_exportacion.Fecha,factura_exportacion.Cantidad, cafe.Nombre FROM factura_exportacion INNER JOIN cafe ON factura_exportacion.Cafe_Id = cafe.Id;");
+                while(consultab.next()){
+                    String fecha = consultab.getString(3);
+                    String factura = "Factura Serie "+consultab.getString(1);
+                    String numero = consultab.getString(2);
+                    String nombre = consultab.getString(5);
+                    String peso =consultab.getString(4);
+                    String[] agregar = new String[7];
+                    agregar[0] = fecha;
+                    agregar[1] = factura;
+                    agregar[2] = numero;
+                    agregar[3] = "Oro";
+                    agregar[4] = nombre;
+                    agregar[5] = "";
+                    agregar[6] = peso;
+                    tabla.addRow(agregar);
+                }
+                
             }else if(tipo_actualizacion == 2){
                 //Agrego todas las entradas de café oro que hay
                 Statement b;
@@ -415,9 +455,47 @@ public class Movimientos extends javax.swing.JFrame {
                     agregar[6] = "";
                     tabla.addRow(agregar);
                 }
+                
+                //Agregar todos los consumos de cafe oro
+                b= base.createStatement();
+                consultab = b.executeQuery("SELECT factura.Serie,factura.Numero,factura.Fecha, detalle_factura.Cantidad, cafe.Nombre FROM detalle_factura INNER JOIN factura ON detalle_factura.Factura_Id = factura.Id INNER JOIN cafe ON detalle_factura.Cafe_Id = cafe.Id");
+                while(consultab.next()){
+                    String fecha = consultab.getString(3);
+                    String factura = "Factura Serie "+consultab.getString(1);
+                    String numero = consultab.getString(2);
+                    String nombre = consultab.getString(5);
+                    String peso =consultab.getString(4);
+                    String[] agregar = new String[7];
+                    agregar[0] = fecha;
+                    agregar[1] = factura;
+                    agregar[2] = numero;
+                    agregar[3] = "Oro";
+                    agregar[4] = nombre;
+                    agregar[5] = "";
+                    agregar[6] = peso;
+                    tabla.addRow(agregar);
+                }
+                b= base.createStatement();
+                consultab = b.executeQuery("SELECT factura_exportacion.Serie,factura_exportacion.Numero,factura_exportacion.Fecha,factura_exportacion.Cantidad, cafe.Nombre FROM factura_exportacion INNER JOIN cafe ON factura_exportacion.Cafe_Id = cafe.Id;");
+                while(consultab.next()){
+                    String fecha = consultab.getString(3);
+                    String factura = "Factura Serie "+consultab.getString(1);
+                    String numero = consultab.getString(2);
+                    String nombre = consultab.getString(5);
+                    String peso =consultab.getString(4);
+                    String[] agregar = new String[7];
+                    agregar[0] = fecha;
+                    agregar[1] = factura;
+                    agregar[2] = numero;
+                    agregar[3] = "Oro";
+                    agregar[4] = nombre;
+                    agregar[5] = "";
+                    agregar[6] = peso;
+                    tabla.addRow(agregar);
+                }
                 }else{
                     //Agrego todas las entradas de café oro pero especifico
-                    ResultSet consultab = b.executeQuery("SELECT notarendimiento.FechaNota, notarendimiento.Codigo,cafe.Nombre,producto.PesoFinal FROM producto INNER JOIN notarendimiento ON producto.NotaRendimiento_Codigo = notarendimiento.Codigo INNER JOIN cafe ON producto.Cafe_Id = cafe.Id WHERE notarendimiento.Cosecha_Id ="+Id_cosecha.get(posicion_cosecha)+" AND producto.Cafe_Id = "+Id_café_oro.get(posicion_café_oro)+";");
+                    ResultSet consultab = b.executeQuery("SELECT notarendimiento.FechaNota, notarendimiento.Codigo,cafe.Nombre,producto.PesoFinal FROM producto INNER JOIN notarendimiento ON producto.NotaRendimiento_Codigo = notarendimiento.Codigo INNER JOIN cafe ON producto.Cafe_Id = cafe.Id WHERE notarendimiento.Cosecha_Id ="+Id_cosecha.get(posicion_cosecha)+" AND producto.Cafe_Id = "+Id_café_oro.get(posicion_café_oro-1)+";");
                 while(consultab.next()){
                     String fecha = consultab.getString(1);
                     String codigo = consultab.getString(2);
@@ -433,6 +511,45 @@ public class Movimientos extends javax.swing.JFrame {
                     agregar[6] = "";
                     tabla.addRow(agregar);
                 }
+                
+                //Agregar todos los consumos de cafe oro
+                b= base.createStatement();
+                consultab = b.executeQuery("SELECT factura.Serie,factura.Numero,factura.Fecha, detalle_factura.Cantidad, cafe.Nombre FROM detalle_factura INNER JOIN factura ON detalle_factura.Factura_Id = factura.Id INNER JOIN cafe ON detalle_factura.Cafe_Id = cafe.Id WHERE detalle_factura.Cafe_Id =" +Id_café_oro.get(posicion_café_oro-1)+";");
+                while(consultab.next()){
+                    String fecha = consultab.getString(3);
+                    String factura = "Factura Serie "+consultab.getString(1);
+                    String numero = consultab.getString(2);
+                    String nombre = consultab.getString(5);
+                    String peso =consultab.getString(4);
+                    String[] agregar = new String[7];
+                    agregar[0] = fecha;
+                    agregar[1] = factura;
+                    agregar[2] = numero;
+                    agregar[3] = "Oro";
+                    agregar[4] = nombre;
+                    agregar[5] = "";
+                    agregar[6] = peso;
+                    tabla.addRow(agregar);
+                }
+                b= base.createStatement();
+                consultab = b.executeQuery("SELECT factura_exportacion.Serie,factura_exportacion.Numero,factura_exportacion.Fecha,factura_exportacion.Cantidad, cafe.Nombre FROM factura_exportacion INNER JOIN cafe ON factura_exportacion.Cafe_Id = cafe.Id WHERE cafe.Id ="+Id_café_oro.get(posicion_café_oro-1)+";");
+                while(consultab.next()){
+                    String fecha = consultab.getString(3);
+                    String factura = "Factura Serie "+consultab.getString(1);
+                    String numero = consultab.getString(2);
+                    String nombre = consultab.getString(5);
+                    String peso =consultab.getString(4);
+                    String[] agregar = new String[7];
+                    agregar[0] = fecha;
+                    agregar[1] = factura;
+                    agregar[2] = numero;
+                    agregar[3] = "Oro";
+                    agregar[4] = nombre;
+                    agregar[5] = "";
+                    agregar[6] = peso;
+                    tabla.addRow(agregar);
+                }
+                
                 }
             }else{
                    Statement b;
@@ -476,7 +593,7 @@ public class Movimientos extends javax.swing.JFrame {
                         }
                    }else{
                        //Agrego todos los recibos de café pergamino especifico
-                       ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Codigo,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino)+";");
+                       ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Codigo,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino-1)+";");
                         while(consultab.next()){
                             String fecha = consultab.getString(1);
                             String codigo = consultab.getString(2);
@@ -494,7 +611,7 @@ public class Movimientos extends javax.swing.JFrame {
                         }
                         //Agrego todos los consumos de café pergamino especifico
                         b= base.createStatement();
-                        consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Codigo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino)+";");
+                        consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Codigo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino-1)+";");
                         while(consultab.next()){
                             String fecha = consultab.getString(1);
                             String codigo_recibo = consultab.getString(2);

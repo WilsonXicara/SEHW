@@ -92,8 +92,12 @@ public class Factura_Local extends javax.swing.JFrame {
         Tx_total = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        Tx_numero = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        Tx_serie = new javax.swing.JTextField();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText("Nombre: ");
 
@@ -251,22 +255,16 @@ public class Factura_Local extends javax.swing.JFrame {
             }
         });
 
+        jLabel8.setText("Numero: ");
+
+        jLabel9.setText("Serie: ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(Tx_nit, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton4))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(219, 219, 219)
-                        .addComponent(jButton3))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -278,7 +276,28 @@ public class Factura_Local extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(Tx_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(Tx_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                    .addComponent(Tx_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(219, 219, 219)
+                                .addComponent(jButton3))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(43, 43, 43)
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(Tx_nit, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton4)
+                                .addGap(27, 27, 27)
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(Tx_numero, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(Tx_serie, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -288,7 +307,11 @@ public class Factura_Local extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(Tx_nit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4))
+                    .addComponent(jButton4)
+                    .addComponent(jLabel8)
+                    .addComponent(Tx_numero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9)
+                    .addComponent(Tx_serie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -385,14 +408,19 @@ public class Factura_Local extends javax.swing.JFrame {
         String Nit = Tx_nit.getText().trim();
         String Nombre = Tx_nombre.getText().trim();
         String Direccion = Tx_direccion.getText().trim();
-        if(Nit.length()>0 && Nombre.length()>0 && Direccion.length()>0){
+        String numero = Tx_numero.getText().trim();
+        String serie = Tx_serie.getText().trim();
+        if(Nit.length()>0 && Nombre.length()>0 && Direccion.length()>0 && numero.length()>0 && serie.length()>0){
             if(agregados.size()>0){
                 try {
+                    Statement u = base.createStatement();
+                    ResultSet consultau = u.executeQuery("SELECT factura.Id FROM factura WHERE factura.Numero ="+numero+" AND factura.Serie = '"+serie+"';");
+                    if(!consultau.next()){
                     Statement b = base.createStatement();
                     ResultSet consultab = b.executeQuery("SELECT clientes.Id FROM clientes WHERE clientes.NIT = '"+Nit+"' AND clientes.Nombre = '"+Nombre+"'AND clientes.Direccion = '"+Direccion+"';");
                     if(consultab.next()){
                         String cliente = consultab.getString(1);
-                        String instruccion = "INSERT INTO factura(factura.Total,factura.Clientes_Id,factura.Fecha) VALUES(0,"+cliente+",NOW());";
+                        String instruccion = "INSERT INTO factura(factura.Total,factura.Clientes_Id,factura.Fecha,factura.Numero,factura.Serie) VALUES(0,"+cliente+",NOW(),"+numero+",'"+serie+"');";
                         PreparedStatement a = base.prepareStatement(instruccion);
                         a.executeUpdate();
                         
@@ -419,7 +447,7 @@ public class Factura_Local extends javax.swing.JFrame {
                         consultab = b.executeQuery("SELECT clientes.Id FROM clientes WHERE clientes.NIT = '"+Nit+"' AND clientes.Nombre = '"+Nombre+"'AND clientes.Direccion = '"+Direccion+"';");
                         consultab.next();
                         String cliente = consultab.getString(1);
-                        String instruccion = "INSERT INTO factura(factura.Total,factura.Clientes_Id,factura.Fecha) VALUES(0,"+cliente+",NOW());";
+                        String instruccion = "INSERT INTO factura(factura.Total,factura.Clientes_Id,factura.Fecha,factura.Numero,factura.Serie) VALUES(0,"+cliente+",NOW(),"+numero+",'"+serie+"');";
                         PreparedStatement a = base.prepareStatement(instruccion);
                         a.executeUpdate();
                         
@@ -444,7 +472,10 @@ public class Factura_Local extends javax.swing.JFrame {
                     Tx_precio.setText("");
                     Tx_cantidad.setText("");
                     Tx_total.setText("0.00");
-                    
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(this, "Ya existe una factura con el mismo numero y serie", "ERROR", JOptionPane.ERROR_MESSAGE, null); 
+                    }
                 } catch (SQLException ex) {
                     Logger.getLogger(Factura_Local.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -502,7 +533,9 @@ public class Factura_Local extends javax.swing.JFrame {
     private javax.swing.JTextField Tx_direccion;
     private javax.swing.JTextField Tx_nit;
     private javax.swing.JTextField Tx_nombre;
+    private javax.swing.JTextField Tx_numero;
     private javax.swing.JTextField Tx_precio;
+    private javax.swing.JTextField Tx_serie;
     private javax.swing.JTextField Tx_total;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -515,6 +548,8 @@ public class Factura_Local extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
