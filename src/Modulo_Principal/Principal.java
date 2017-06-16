@@ -17,7 +17,9 @@ import Modulo_Compras.CrearFacturaEspecial;
 import Modulo_Inventario.Cotizacion;
 import Modulo_Produccion.CrearOrdenTrilla;
 import Modulo_Produccion.CrearRecibo;
-import Modulo_Ventas.Factura_Exportación;
+import Modulo_RecursosHumanos.CrearPuesto;
+import Modulo_RecursosHumanos.NuevoPersonal;
+import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Image;
 import java.sql.Connection;
@@ -79,11 +81,14 @@ public class Principal extends javax.swing.JFrame {
         jMenuItem1 = new javax.swing.JMenuItem();
         menu_pagos = new javax.swing.JMenu();
         item_pagar_cafe = new javax.swing.JMenuItem();
-        menu_cotizacion = new javax.swing.JMenu();
-        item_cotizar_cafe = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem11 = new javax.swing.JMenuItem();
+        item_cotizar_cafe = new javax.swing.JMenuItem();
+        menu_recursos_humanos = new javax.swing.JMenu();
+        item_nuevo_puesto = new javax.swing.JMenuItem();
+        item_nuevo_empleado = new javax.swing.JMenuItem();
+        item_asignar_empleo = new javax.swing.JMenuItem();
 
         jMenuItem4.setText("jMenuItem4");
 
@@ -194,18 +199,6 @@ public class Principal extends javax.swing.JFrame {
 
         menu.add(menu_pagos);
 
-        menu_cotizacion.setText("Cotizaciones");
-
-        item_cotizar_cafe.setText("Cotizar Café Existente");
-        item_cotizar_cafe.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item_cotizar_cafeActionPerformed(evt);
-            }
-        });
-        menu_cotizacion.add(item_cotizar_cafe);
-
-        menu.add(menu_cotizacion);
-
         jMenu1.setText("Ventas");
 
         jMenuItem7.setText("Facturas Exportación");
@@ -224,7 +217,38 @@ public class Principal extends javax.swing.JFrame {
         });
         jMenu1.add(jMenuItem11);
 
+        item_cotizar_cafe.setText("Cotizar Café Existente");
+        item_cotizar_cafe.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_cotizar_cafeActionPerformed(evt);
+            }
+        });
+        jMenu1.add(item_cotizar_cafe);
+
         menu.add(jMenu1);
+
+        menu_recursos_humanos.setText("Recursos Humanos");
+
+        item_nuevo_puesto.setText("Nuevo Puesto");
+        item_nuevo_puesto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_nuevo_puestoActionPerformed(evt);
+            }
+        });
+        menu_recursos_humanos.add(item_nuevo_puesto);
+
+        item_nuevo_empleado.setText("Nuevo Empleado");
+        item_nuevo_empleado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_nuevo_empleadoActionPerformed(evt);
+            }
+        });
+        menu_recursos_humanos.add(item_nuevo_empleado);
+
+        item_asignar_empleo.setText("Asignar Empleo");
+        menu_recursos_humanos.add(item_asignar_empleo);
+
+        menu.add(menu_recursos_humanos);
 
         setJMenuBar(menu);
 
@@ -322,6 +346,16 @@ public class Principal extends javax.swing.JFrame {
         nuevaC.setVisible(nuevaC.getHacerVisible());
     }//GEN-LAST:event_item_cotizar_cafeActionPerformed
 
+    private void item_nuevo_empleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_nuevo_empleadoActionPerformed
+        NuevoPersonal nuevo = new NuevoPersonal(conexion, this);
+        nuevo.setVisible(true);
+    }//GEN-LAST:event_item_nuevo_empleadoActionPerformed
+
+    private void item_nuevo_puestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_nuevo_puestoActionPerformed
+        CrearPuesto nuevo = new CrearPuesto(conexion, this);
+        nuevo.setVisible(true);
+    }//GEN-LAST:event_item_nuevo_puestoActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -358,9 +392,12 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem item_asignar_empleo;
     private javax.swing.JMenuItem item_cotizar_cafe;
     private javax.swing.JMenuItem item_crear_cosecha;
     private javax.swing.JMenuItem item_crear_tipo_cafe;
+    private javax.swing.JMenuItem item_nuevo_empleado;
+    private javax.swing.JMenuItem item_nuevo_puesto;
     private javax.swing.JMenuItem item_pagar_cafe;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -379,8 +416,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JMenuItem jMenuItem9;
     private javax.swing.JMenuBar menu;
-    private javax.swing.JMenu menu_cotizacion;
     private javax.swing.JMenu menu_crear;
     private javax.swing.JMenu menu_pagos;
+    private javax.swing.JMenu menu_recursos_humanos;
     // End of variables declaration//GEN-END:variables
 }

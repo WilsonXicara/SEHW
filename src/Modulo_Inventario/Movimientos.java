@@ -340,7 +340,7 @@ public class Movimientos extends javax.swing.JFrame {
                 Statement b;
                 b = base.createStatement();
                 //Agrego todos los recibos existentes en esa cosecha
-                ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Codigo,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
+                ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Numero,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
                 while(consultab.next()){
                     String fecha = consultab.getString(1);
                     String codigo = consultab.getString(2);
@@ -378,7 +378,7 @@ public class Movimientos extends javax.swing.JFrame {
                 
                 //Agregar todos los consumos de pergamino que hay
                 b= base.createStatement();
-                consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Codigo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
+                consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Id INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
                 while(consultab.next()){
                     String fecha = consultab.getString(1);
                     String codigo_recibo = consultab.getString(2);
@@ -557,7 +557,7 @@ public class Movimientos extends javax.swing.JFrame {
                    b = base.createStatement();
                    if(posicion_café_pergamino == 0){
                        //Agrego todos los recibos de café pergamino
-                       ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Codigo,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
+                       ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Numero,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
                         while(consultab.next()){
                             String fecha = consultab.getString(1);
                             String codigo = consultab.getString(2);
@@ -575,7 +575,7 @@ public class Movimientos extends javax.swing.JFrame {
                         }
                         //Agrego todos los consumos de café pergamino
                         b= base.createStatement();
-                        consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Codigo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
+                        consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Id INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+";");
                         while(consultab.next()){
                             String fecha = consultab.getString(1);
                             String codigo_recibo = consultab.getString(2);
@@ -594,7 +594,7 @@ public class Movimientos extends javax.swing.JFrame {
                         }
                    }else{
                        //Agrego todos los recibos de café pergamino especifico
-                       ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Codigo,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino-1)+";");
+                       ResultSet consultab = b.executeQuery("SELECT recibo.Fecha,recibo.Numero,recibo.Peso,cafe.Nombre FROM recibo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE recibo.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino-1)+";");
                         while(consultab.next()){
                             String fecha = consultab.getString(1);
                             String codigo = consultab.getString(2);
@@ -612,7 +612,7 @@ public class Movimientos extends javax.swing.JFrame {
                         }
                         //Agrego todos los consumos de café pergamino especifico
                         b= base.createStatement();
-                        consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Codigo INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino-1)+";");
+                        consultab = b.executeQuery("SELECT ordentrilla.Fecha, consumo.Recibo_Codigo,ordentrilla.Codigo,cafe.Nombre, consumo.PesoUtilizado FROM consumo INNER JOIN ordentrilla ON consumo.OrdenTrilla_Codigo = ordentrilla.Codigo INNER JOIN recibo ON consumo.Recibo_Codigo = recibo.Id INNER JOIN cafe ON recibo.Cafe_Id = cafe.Id WHERE ordentrilla.Cosecha_Id = "+Id_cosecha.get(posicion_cosecha)+" AND cafe.Id = "+Id_café_pergamino.get(posicion_café_pergamino-1)+";");
                         while(consultab.next()){
                             String fecha = consultab.getString(1);
                             String codigo_recibo = consultab.getString(2);
