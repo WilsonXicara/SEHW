@@ -122,21 +122,6 @@
             </MenuItem>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="menu_cotizacion">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Cotizaciones"/>
-          </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="item_cotizar_cafe">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Cotizar Caf&#xe9; Existente"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_cotizar_cafeActionPerformed"/>
-              </Events>
-            </MenuItem>
-          </SubComponents>
-        </Menu>
         <Menu class="javax.swing.JMenu" name="jMenu1">
           <Properties>
             <Property name="text" type="java.lang.String" value="Ventas"/>
@@ -157,6 +142,42 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem11ActionPerformed"/>
               </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="item_cotizar_cafe">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Cotizar Caf&#xe9; Existente"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_cotizar_cafeActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="menu_recursos_humanos">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Recursos Humanos"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="item_nuevo_puesto">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Nuevo Puesto"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_nuevo_puestoActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="item_nuevo_empleado">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Nuevo Empleado"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_nuevo_empleadoActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="item_asignar_empleo">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Asignar Empleo"/>
+              </Properties>
             </MenuItem>
           </SubComponents>
         </Menu>
