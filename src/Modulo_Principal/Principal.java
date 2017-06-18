@@ -17,8 +17,10 @@ import Modulo_Compras.CrearFacturaEspecial;
 import Modulo_Inventario.Cotizacion;
 import Modulo_Produccion.CrearOrdenTrilla;
 import Modulo_Produccion.CrearRecibo;
+import Modulo_RecursosHumanos.AsignacionDeEmpleos;
 import Modulo_RecursosHumanos.CrearPuesto;
 import Modulo_RecursosHumanos.NuevoPersonal;
+import Modulo_RecursosHumanos.VerPlanilla;
 import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Image;
@@ -96,7 +98,8 @@ public class Principal extends javax.swing.JFrame {
         menu_recursos_humanos = new javax.swing.JMenu();
         item_nuevo_puesto = new javax.swing.JMenuItem();
         item_nuevo_empleado = new javax.swing.JMenuItem();
-        item_asignar_empleo = new javax.swing.JMenuItem();
+        item_asigacion_empleos = new javax.swing.JMenuItem();
+        item_ver_planilla = new javax.swing.JMenuItem();
 
         jMenuItem4.setText("jMenuItem4");
 
@@ -260,8 +263,21 @@ public class Principal extends javax.swing.JFrame {
         });
         menu_recursos_humanos.add(item_nuevo_empleado);
 
-        item_asignar_empleo.setText("Asignar Empleo");
-        menu_recursos_humanos.add(item_asignar_empleo);
+        item_asigacion_empleos.setText("Asignar Empleos");
+        item_asigacion_empleos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_asigacion_empleosActionPerformed(evt);
+            }
+        });
+        menu_recursos_humanos.add(item_asigacion_empleos);
+
+        item_ver_planilla.setText("Ver Planilla");
+        item_ver_planilla.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_ver_planillaActionPerformed(evt);
+            }
+        });
+        menu_recursos_humanos.add(item_ver_planilla);
 
         menu.add(menu_recursos_humanos);
 
@@ -378,6 +394,15 @@ public class Principal extends javax.swing.JFrame {
         nuevo.setVisible(true);
     }//GEN-LAST:event_item_nuevo_puestoActionPerformed
 
+    private void item_ver_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_ver_planillaActionPerformed
+        VerPlanilla planilla = new VerPlanilla(conexion, this);
+        planilla.setVisible(true);
+    }//GEN-LAST:event_item_ver_planillaActionPerformed
+
+    private void item_asigacion_empleosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_asigacion_empleosActionPerformed
+        AsignacionDeEmpleos asignar = new AsignacionDeEmpleos(conexion, this);
+        asignar.setVisible(true);
+    }//GEN-LAST:event_item_asigacion_empleosActionPerformed
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             String Id_ciclo_contable= "1"; //Id de la relacion entre año y mes
@@ -433,13 +458,14 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuItem item_asignar_empleo;
+    private javax.swing.JMenuItem item_asigacion_empleos;
     private javax.swing.JMenuItem item_cotizar_cafe;
     private javax.swing.JMenuItem item_crear_cosecha;
     private javax.swing.JMenuItem item_crear_tipo_cafe;
     private javax.swing.JMenuItem item_nuevo_empleado;
     private javax.swing.JMenuItem item_nuevo_puesto;
     private javax.swing.JMenuItem item_pagar_cafe;
+    private javax.swing.JMenuItem item_ver_planilla;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
