@@ -5,56 +5,71 @@
  */
 package Modulo_RecursosHumanos;
 
+import Excepciones.ExcepcionDatosIncorrectos;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 /**
  *
- * @author pc
+ * @author Wilson Xicará
  */
-public class AsignarEmpleo extends javax.swing.JFrame {
-    private boolean hacerVisible;
+public class AsignarEmpleo extends javax.swing.JDialog {
     private Connection conexion;
-    private JFrame ventanaPadre;
-    private int idEmpleado;
-    private ArrayList<Integer> listaIDPuesto;
-    private ArrayList<String> listaDescripcionPuesto;
+    private boolean hacerVisible, puestoAsignado;
+    private int idPersona;
+    private ArrayList<Integer> listaIDPuestos, listaIDPersonas, listaIDPuestoAnterior;
+    private ArrayList<String> listaDescripcionPuestos;
+    private String nuevoPuesto, nuevoSueldo, nuevaFechaInicio, nuevaFechaFin;
     private Date fechaActual;
     /**
-     * Creates new form CrearTrabajo
+     * Creates new form CrearEmpleo
      */
-    public AsignarEmpleo() {
+    public AsignarEmpleo(java.awt.Frame parent, boolean modal) {
+        super(parent, modal);
         initComponents();
     }
-
-    public AsignarEmpleo(Connection conexion, JFrame ventanaPadre, int idEmpleado, String nombreEmpleado, String direccionEmpleado) {
+    public AsignarEmpleo(java.awt.Frame parent, boolean modal, Connection conexion, int idPersona) {
+        super(parent, modal);
         initComponents();
-        hacerVisible = true;
+        puestoAsignado = !(hacerVisible = true);    // Inicialmete se mostrará esta ventana y no se ha asignado algún puesto
         this.conexion = conexion;
-        this.ventanaPadre = ventanaPadre;
-        this.idEmpleado = idEmpleado;
-        listaIDPuesto = new ArrayList<>();
-        listaDescripcionPuesto = new ArrayList<>();
+        this.idPersona = idPersona;
+        listaIDPuestos = new ArrayList<>();
+        listaDescripcionPuestos = new ArrayList<>();
         
-        // Obtengo los datos necesarios de las Cosechas, Productores y Tipo de café desde la Base de Datos
+        // Obtengo los datos necesarios de los Puestos existentes en la Base de Datos
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ResultSet cConsulta;
-            // Obtención del listado de Cosechas
+            // Obtención del listado de Puestos
             cConsulta = sentencia.executeQuery("SELECT * FROM Puesto");
             while (cConsulta.next()) {
-                listaIDPuesto.add(cConsulta.getInt("Id"));
-                listaDescripcionPuesto.add(cConsulta.getString("Descripcion"));
-                puesto_empleado.addItem(cConsulta.getString("Nombre"));
-            } puesto_empleado.setSelectedIndex(-1);
+                listaIDPuestos.add(cConsulta.getInt("Id"));
+                listaDescripcionPuestos.add(cConsulta.getString("Descripcion"));
+                puestos.addItem(cConsulta.getString("Nombre_Puesto"));
+            } puestos.setSelectedIndex(-1);
+            if (listaIDPuestos.isEmpty()) {
+                hacerVisible = false;
+                JOptionPane.showMessageDialog(this, "Aún no se ha creado algún Puesto, por lo que no se puede asignar Empleo a las Personas.\nContacte al Administrador para más información y vuelva a intentarlo", "Datos faltantes", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            nuevoPuesto = nuevoSueldo = nuevaFechaInicio = nuevaFechaFin = "";
+            // Obtengo la información básica de la Persona al que se le creará el Empleo
+            cConsulta = sentencia.executeQuery("SELECT DPI, Nombre, Direccion FROM Personal WHERE Id = "+idPersona);
+            if (cConsulta.next()) {
+                persona_dpi.setText(cConsulta.getString("DPI"));
+                persona_nombre.setText(cConsulta.getString("Nombre"));
+                persona_direccion.setText(cConsulta.getString("Direccion"));
+            }
             // Obtengo la fecha de hoy (desde la Base de Datos)
             cConsulta = sentencia.executeQuery("SELECT YEAR(NOW()), MONTH(NOW()), DAY(NOW())");
             cConsulta.next();
@@ -82,66 +97,27 @@ public class AsignarEmpleo extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel6 = new javax.swing.JLabel();
-        nombre_empleado = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        direccion_empleado = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        puesto_empleado = new javax.swing.JComboBox<>();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        descripcion_puesto = new javax.swing.JTextArea();
-        asignar_empleo = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         fecha_inicio_puesto = new com.toedter.calendar.JDateChooser();
         fecha_fin_puesto = new com.toedter.calendar.JDateChooser();
         jLabel12 = new javax.swing.JLabel();
         sueldo_base = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
-        prestaciones = new javax.swing.JTextField();
-        jLabel14 = new javax.swing.JLabel();
-        comisiones = new javax.swing.JTextField();
-        jLabel15 = new javax.swing.JLabel();
+        asignar_empleo = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        persona_direccion = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        persona_dpi = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        persona_nombre = new javax.swing.JTextField();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        puestos = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        descripcion_puesto = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel6.setText("Datos del Empleado:");
-
-        nombre_empleado.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-
-        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel7.setText("Nombre:");
-
-        direccion_empleado.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-
-        jLabel8.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel8.setText("Dirección:");
-
-        jLabel9.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel9.setText("Datos del Puesto:");
-
-        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel10.setText("Puesto:");
-
-        puesto_empleado.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                puesto_empleadoItemStateChanged(evt);
-            }
-        });
-
-        descripcion_puesto.setColumns(20);
-        descripcion_puesto.setRows(5);
-        jScrollPane1.setViewportView(descripcion_puesto);
-
-        asignar_empleo.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        asignar_empleo.setText("Asignar");
-        asignar_empleo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                asignar_empleoActionPerformed(evt);
-            }
-        });
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Fecha Inicio:");
@@ -156,19 +132,115 @@ public class AsignarEmpleo extends javax.swing.JFrame {
         jLabel12.setText("Fecha Fin:");
 
         sueldo_base.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        sueldo_base.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                sueldo_baseKeyTyped(evt);
+            }
+        });
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel13.setText("Sueldo base:");
 
-        prestaciones.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        asignar_empleo.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        asignar_empleo.setText("Asignar Puesto");
+        asignar_empleo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                asignar_empleoActionPerformed(evt);
+            }
+        });
 
-        jLabel14.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel14.setText("Prestaciones:");
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos de la Persona:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
 
-        comisiones.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel8.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel8.setText("Dirección:");
 
-        jLabel15.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel15.setText("Comisiones:");
+        persona_direccion.setEditable(false);
+        persona_direccion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel11.setText("DPI:");
+
+        persona_dpi.setEditable(false);
+        persona_dpi.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel7.setText("Nombre:");
+
+        persona_nombre.setEditable(false);
+        persona_nombre.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_dpi, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel11)
+                    .addComponent(persona_dpi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7)
+                    .addComponent(persona_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(persona_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos del Puesto:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel10.setText("Puesto:");
+
+        puestos.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                puestosItemStateChanged(evt);
+            }
+        });
+
+        descripcion_puesto.setEditable(false);
+        descripcion_puesto.setColumns(20);
+        descripcion_puesto.setRows(5);
+        jScrollPane1.setViewportView(descripcion_puesto);
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jLabel10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(puestos, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel10)
+                        .addComponent(puestos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -178,23 +250,9 @@ public class AsignarEmpleo extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nombre_empleado, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(direccion_empleado, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel9)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel10)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(puesto_empleado, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel13)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(sueldo_base, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -204,44 +262,23 @@ public class AsignarEmpleo extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fecha_fin_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel13)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sueldo_base, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(asignar_empleo)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel14)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(prestaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel15)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(comisiones, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(213, 213, 213)
+                        .addComponent(asignar_empleo)))
+                .addGap(189, 189, 189))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel6)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(nombre_empleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(direccion_empleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel10)
-                        .addComponent(puesto_empleado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(32, 32, 32)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel5)
                     .addComponent(fecha_inicio_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -251,29 +288,76 @@ public class AsignarEmpleo extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel13)
                     .addComponent(sueldo_base, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel14)
-                    .addComponent(prestaciones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel15)
-                    .addComponent(comisiones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(asignar_empleo)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void sueldo_baseKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sueldo_baseKeyTyped
+        if (!Pattern.compile("[.\\d]").matcher(String.valueOf(evt.getKeyChar())).matches())
+        evt.consume();
+    }//GEN-LAST:event_sueldo_baseKeyTyped
+    /**
+     * Acción que permite asignar una Persona a un Empleo, siempre que este no tenga uno ya asignado o nunca ha tenido uno.
+     * En cualquier caso (asignación de una o varias Personas), se hace la asignación siempre que no tenga uno, hay un
+     * atributo en la tabla Personal de la BD que indica eso, y se actualiza dicho atributo (para que ya no se pueda hacer
+     * otra asignación de empleo).
+     * @param evt 
+     */
     private void asignar_empleoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_asignar_empleoActionPerformed
-        // Código para la Creación de una nueva Persona
+        try {
+            validar_datos();    // Verificación de que los datos sean correctos
+            Calendar fechaI = fecha_inicio_puesto.getCalendar(), fechaF = fecha_fin_puesto.getCalendar();
+            // Creación del Registro de nuevo Empleo en la Base de Datos
+            String instruccion = "INSERT INTO Empleo(Personal_Id, Puesto_Id, FechaInicio, FechaFin, SueldoBase) VALUES(";
+            instruccion+= idPersona+", ";
+            instruccion+= listaIDPuestos.get(puestos.getSelectedIndex())+", ";
+            instruccion+= "'"+fechaI.get(Calendar.YEAR)+"-"+(fechaI.get(Calendar.MONTH)+1)+"-"+fechaI.get(Calendar.DAY_OF_MONTH)+"', ";
+            instruccion+= "'"+fechaF.get(Calendar.YEAR)+"-"+(fechaF.get(Calendar.MONTH)+1)+"-"+fechaF.get(Calendar.DAY_OF_MONTH)+"', ";
+            instruccion+= sueldo_base.getText()+")";
+            conexion.prepareStatement(instruccion).executeUpdate();
+            // Actualización del indicador en Personal de que ya tiene empleo
+            conexion.prepareStatement("UPDATE Personal SET Trabajando = 1 WHERE Id = "+idPersona).executeUpdate();
+            puestoAsignado = true;  // Indicador de que la Persona ya tiene Empleo
+            nuevoPuesto = (String)puestos.getSelectedItem();
+            nuevoSueldo = sueldo_base.getText();
+            nuevaFechaInicio = ""+fechaI.get(Calendar.YEAR)+"-"+(fechaI.get(Calendar.MONTH)+1)+"-"+fechaI.get(Calendar.DAY_OF_MONTH);
+            nuevaFechaFin = ""+fechaF.get(Calendar.YEAR)+"-"+(fechaF.get(Calendar.MONTH)+1)+"-"+fechaF.get(Calendar.DAY_OF_MONTH);
+            JOptionPane.showMessageDialog(this, "Asiganción creada exitosamente", "Información", JOptionPane.INFORMATION_MESSAGE);
+
+            this.dispose(); // Al Asignar el Empleo sin problemas, se cierra esta ventana
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(AsignarEmpleo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al intentar crear el nuevo Empleo.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(AsignarEmpleo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_asignar_empleoActionPerformed
 
-    private void puesto_empleadoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_puesto_empleadoItemStateChanged
-        int index = puesto_empleado.getSelectedIndex();
-        descripcion_puesto.setText((index==-1) ? "" : listaDescripcionPuesto.get(index));
-    }//GEN-LAST:event_puesto_empleadoItemStateChanged
+    private void puestosItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_puestosItemStateChanged
+        int index = puestos.getSelectedIndex();
+        descripcion_puesto.setText((index==-1) ? "" : listaDescripcionPuestos.get(index));
+    }//GEN-LAST:event_puestosItemStateChanged
 
+     private void validar_datos() throws ExcepcionDatosIncorrectos {
+        if (puestos.getSelectedIndex() == -1)
+            throw new ExcepcionDatosIncorrectos("Seleccione el Puesto");
+        if (fecha_inicio_puesto.getDate() == null)
+            throw new ExcepcionDatosIncorrectos("Especifique la Fecha en la que Inicia a trabajar "+persona_nombre.getText());
+        if (fecha_fin_puesto.getDate() == null)
+            throw new ExcepcionDatosIncorrectos("Especifique la Fecha en la que Termina de trabajar "+persona_nombre.getText());
+        
+    }
+    public boolean isHacerVisible() { return hacerVisible; }
+    public boolean isPuestoAsignado() { return puestoAsignado; }
+    public String getNuevoPuesto() { return nuevoPuesto; }
+    public String getNuevoSueldo() { return nuevoSueldo; }
+    public String getNuevaFechaInicio() { return nuevaFechaInicio; }
+    public String getNuevaFechaFin() { return nuevaFechaFin; }
     /**
      * @param args the command line arguments
      */
@@ -304,35 +388,40 @@ public class AsignarEmpleo extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
-        /* Create and display the form */
+        /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AsignarEmpleo().setVisible(true);
+                AsignarEmpleo dialog = new AsignarEmpleo(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton asignar_empleo;
-    private javax.swing.JTextField comisiones;
     private javax.swing.JTextArea descripcion_puesto;
-    private javax.swing.JTextField direccion_empleado;
     private com.toedter.calendar.JDateChooser fecha_fin_puesto;
     private com.toedter.calendar.JDateChooser fecha_inicio_puesto;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField nombre_empleado;
-    private javax.swing.JTextField prestaciones;
-    private javax.swing.JComboBox<String> puesto_empleado;
+    private javax.swing.JTextField persona_direccion;
+    private javax.swing.JTextField persona_dpi;
+    private javax.swing.JTextField persona_nombre;
+    private javax.swing.JComboBox<String> puestos;
     private javax.swing.JTextField sueldo_base;
     // End of variables declaration//GEN-END:variables
 }

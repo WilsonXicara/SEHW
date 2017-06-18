@@ -174,10 +174,21 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_nuevo_empleadoActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="item_asignar_empleo">
+            <MenuItem class="javax.swing.JMenuItem" name="item_asigacion_empleos">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Asignar Empleo"/>
+                <Property name="text" type="java.lang.String" value="Asignar Empleos"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_asigacion_empleosActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="item_ver_planilla">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Ver Planilla"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_ver_planillaActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
