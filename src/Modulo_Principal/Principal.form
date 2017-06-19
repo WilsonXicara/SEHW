@@ -182,12 +182,20 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_asigacion_empleosActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="item_ver_planilla">
+            <MenuItem class="javax.swing.JMenuItem" name="item_control_horas_extra">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Ver Planilla"/>
+                <Property name="text" type="java.lang.String" value="Control de Horas Extra"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_ver_planillaActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_control_horas_extraActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="item_ver_generar_planilla">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Generar Planilla"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="item_ver_generar_planillaActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>

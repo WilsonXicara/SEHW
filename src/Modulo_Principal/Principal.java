@@ -18,6 +18,7 @@ import Modulo_Inventario.Cotizacion;
 import Modulo_Produccion.CrearOrdenTrilla;
 import Modulo_Produccion.CrearRecibo;
 import Modulo_RecursosHumanos.AsignacionDeEmpleos;
+import Modulo_RecursosHumanos.ControlHorasExtra;
 import Modulo_RecursosHumanos.CrearPuesto;
 import Modulo_RecursosHumanos.NuevoPersonal;
 import Modulo_RecursosHumanos.VerPlanilla;
@@ -99,7 +100,8 @@ public class Principal extends javax.swing.JFrame {
         item_nuevo_puesto = new javax.swing.JMenuItem();
         item_nuevo_empleado = new javax.swing.JMenuItem();
         item_asigacion_empleos = new javax.swing.JMenuItem();
-        item_ver_planilla = new javax.swing.JMenuItem();
+        item_control_horas_extra = new javax.swing.JMenuItem();
+        item_ver_generar_planilla = new javax.swing.JMenuItem();
 
         jMenuItem4.setText("jMenuItem4");
 
@@ -271,13 +273,21 @@ public class Principal extends javax.swing.JFrame {
         });
         menu_recursos_humanos.add(item_asigacion_empleos);
 
-        item_ver_planilla.setText("Ver Planilla");
-        item_ver_planilla.addActionListener(new java.awt.event.ActionListener() {
+        item_control_horas_extra.setText("Control de Horas Extra");
+        item_control_horas_extra.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                item_ver_planillaActionPerformed(evt);
+                item_control_horas_extraActionPerformed(evt);
             }
         });
-        menu_recursos_humanos.add(item_ver_planilla);
+        menu_recursos_humanos.add(item_control_horas_extra);
+
+        item_ver_generar_planilla.setText("Generar Planilla");
+        item_ver_generar_planilla.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                item_ver_generar_planillaActionPerformed(evt);
+            }
+        });
+        menu_recursos_humanos.add(item_ver_generar_planilla);
 
         menu.add(menu_recursos_humanos);
 
@@ -394,10 +404,10 @@ public class Principal extends javax.swing.JFrame {
         nuevo.setVisible(true);
     }//GEN-LAST:event_item_nuevo_puestoActionPerformed
 
-    private void item_ver_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_ver_planillaActionPerformed
+    private void item_ver_generar_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_ver_generar_planillaActionPerformed
         VerPlanilla planilla = new VerPlanilla(conexion, this);
         planilla.setVisible(true);
-    }//GEN-LAST:event_item_ver_planillaActionPerformed
+    }//GEN-LAST:event_item_ver_generar_planillaActionPerformed
 
     private void item_asigacion_empleosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_asigacion_empleosActionPerformed
         AsignacionDeEmpleos asignar = new AsignacionDeEmpleos(conexion, this);
@@ -407,7 +417,7 @@ public class Principal extends javax.swing.JFrame {
         try {
             String Id_ciclo_contable= "1"; //Id de la relacion entre año y mes
             String Mes = "Enero"; //Mes de la planilla
-            String Año = "2017"; //Año de la planilla
+            String Año = "2015"; //Año de la planilla
             Map parametros  = new HashMap();
             parametros.put("NumMes", Id_ciclo_contable);
             parametros.put("Mes", Mes);
@@ -418,9 +428,14 @@ public class Principal extends javax.swing.JFrame {
             
             JasperViewer.viewReport(a,false);
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Error:"+e);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void item_control_horas_extraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_control_horas_extraActionPerformed
+        ControlHorasExtra control = new ControlHorasExtra(conexion, this);
+        control.setVisible(control.getHacerVisible());
+    }//GEN-LAST:event_item_control_horas_extraActionPerformed
 
     /**
      * @param args the command line arguments
@@ -459,13 +474,14 @@ public class Principal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem item_asigacion_empleos;
+    private javax.swing.JMenuItem item_control_horas_extra;
     private javax.swing.JMenuItem item_cotizar_cafe;
     private javax.swing.JMenuItem item_crear_cosecha;
     private javax.swing.JMenuItem item_crear_tipo_cafe;
     private javax.swing.JMenuItem item_nuevo_empleado;
     private javax.swing.JMenuItem item_nuevo_puesto;
     private javax.swing.JMenuItem item_pagar_cafe;
-    private javax.swing.JMenuItem item_ver_planilla;
+    private javax.swing.JMenuItem item_ver_generar_planilla;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
