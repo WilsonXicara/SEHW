@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Patrimonio" language="groovy" pageWidth="572" pageHeight="752" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="332527f8-2e27-4976-a5a9-284a34e9322b">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT cuentas.saldo,cuentas.nombre FROM cuentas WHERE cuentas.Patrimonio = 1;]]>
+	</queryString>
+	<field name="saldo" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="saldo_1" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{saldo}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="332" height="20" uuid="5b4d1fca-0232-4cea-aa0f-a0fbc175ee1d"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PATRIMONIO NETO]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<textField pattern="#,##0.00">
+				<reportElement x="332" y="1" width="120" height="20" uuid="2c8c7dd6-f6d9-4975-b170-adb1593c052d"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="1" width="332" height="20" uuid="d41f2423-5d7d-44ea-b83b-7eb6fa113266"/>
+				<textFieldExpression><![CDATA[$F{nombre}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="21" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="20" uuid="7c49cdf5-ca06-4817-aa29-8bfa3dc68b8e"/>
+				<text><![CDATA[Total Patrimonio Neto]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement x="452" y="0" width="120" height="20" uuid="dd2ae161-99a8-4a0b-a3c4-d1364513710c"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{saldo_1}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="332" y="0" width="120" height="1" uuid="4d27fb40-4f80-4d77-9a3e-6921026377e7"/>
+			</line>
+			<line>
+				<reportElement x="452" y="20" width="120" height="1" uuid="7be883fc-cba6-452f-aa39-3c646b381d39"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

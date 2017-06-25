@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Costo_Ventas2" language="groovy" pageWidth="572" pageHeight="752" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="72e15a56-3862-4002-8679-51edeceb2f3a">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="Compras_Netas" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT cuentas.Id,cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Id = 53;]]>
+	</queryString>
+	<field name="Nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Saldo" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="41" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" x="0" y="0" width="272" height="20" uuid="41bdcd09-9914-4034-a216-98e4279996bb"/>
+				<textFieldExpression><![CDATA["-)"+$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement positionType="Float" x="272" y="0" width="100" height="20" uuid="baf29bb8-6ebf-4b66-b7be-a472c2358de5"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Saldo}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="Float" x="272" y="20" width="100" height="1" uuid="f93a3099-f49c-47d0-b221-25c49e2e6768"/>
+			</line>
+			<textField pattern="#,##0.00">
+				<reportElement positionType="Float" x="372" y="20" width="100" height="20" uuid="e5a64e44-fa2a-447e-80ea-f27f18f4053a"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$P{Compras_Netas}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="20" width="272" height="20" uuid="5d81f8ae-488e-4a6c-a788-93e79c6ff12b"/>
+				<text><![CDATA[Compras Netas]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="Float" x="372" y="40" width="100" height="1" uuid="d8ea6993-af1c-4435-a6b9-5a170cd0c31d"/>
+			</line>
+		</band>
+	</detail>
+</jasperReport>

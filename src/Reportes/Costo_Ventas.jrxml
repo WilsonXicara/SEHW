@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Costo_Ventas_1" language="groovy" pageWidth="572" pageHeight="752" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="d3338c0d-0d99-4789-9a43-242f840451c3">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="Inventario_Inicial" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT cuentas.Id,cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Id = 44 OR cuentas.Id = 52 ;]]>
+	</queryString>
+	<field name="Id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Saldo" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="Float" x="-10" y="0" width="282" height="20" uuid="419f1218-d969-49fe-8d33-5a8d11f4e286"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Costo Ventas]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement x="372" y="20" width="100" height="20" uuid="65992a1b-3ac8-48d8-a44f-5631319d22f7"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$P{Inventario_Inicial}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="20" width="272" height="20" uuid="d4b0cb28-2624-4c9c-83dd-bf50dedc2c91"/>
+				<text><![CDATA[Inventario Inicial Mercaderias]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{Id}.equals( 44 )]]></printWhenExpression>
+			<textField>
+				<reportElement x="0" y="0" width="272" height="20" uuid="dbae205a-e995-4431-a6c0-a3fe74a9e54a"/>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="272" y="0" width="100" height="20" uuid="6a5d3d1a-5da7-4b5a-a106-437bb1076ffe"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Saldo}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$F{Id}.equals( 52 )]]></printWhenExpression>
+			<textField>
+				<reportElement x="0" y="0" width="272" height="20" uuid="2c7190b6-9261-4b5f-8d78-e34ecf5141ed"/>
+				<textFieldExpression><![CDATA["+)"+$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="272" y="0" width="100" height="20" uuid="8322ab62-9e52-441a-b436-076b60a74967"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Saldo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>
