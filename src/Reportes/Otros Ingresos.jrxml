@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Otros Ingresos" language="groovy" pageWidth="572" pageHeight="752" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="805e5279-f6bc-419f-a6e4-b7de71aac5ee">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Ganancia = 1 AND cuentas.Id != 53 AND cuentas.Id != 45;]]>
+	</queryString>
+	<field name="Nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Saldo" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="Saldo_1" class="java.lang.Float" calculation="Sum">
+		<variableExpression><![CDATA[$F{Saldo}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="271" height="20" uuid="8bea5307-65d3-4663-b895-a297b4a59e3f"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[OTROS INGRESOS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" x="-1" y="0" width="272" height="20" uuid="de2de431-b3d4-4618-a0e4-c1da188da013"/>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement positionType="Float" x="372" y="0" width="100" height="20" uuid="4e9f0644-4d19-4f17-ad8b-ba5580a2114f"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{Saldo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="272" height="20" uuid="27d555cf-320f-4a59-a0c8-8837e45a2298"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Otros Ingresos]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement positionType="Float" x="472" y="0" width="100" height="20" uuid="f36e1c35-ef69-4a92-b9f9-44878bbb05e9"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{Saldo_1}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="372" y="1" width="100" height="1" uuid="6dab353f-02af-4c14-b6ec-2a4fefc086d7"/>
+			</line>
+			<line>
+				<reportElement x="472" y="19" width="100" height="1" uuid="1ade7207-54f9-4ac5-9ccc-edf4769b733d"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>
