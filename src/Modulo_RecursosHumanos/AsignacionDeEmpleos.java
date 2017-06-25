@@ -103,7 +103,7 @@ public class AsignacionDeEmpleos extends javax.swing.JFrame {
 
             },
             new String [] {
-                "No.", "Nombre", "DPI", "Último puesto"
+                "No.", "Nombre", "DPI", "Historial"
             }
         ) {
             Class[] types = new Class [] {
@@ -122,6 +122,7 @@ public class AsignacionDeEmpleos extends javax.swing.JFrame {
             }
         });
         tabla_personas.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabla_personas.getTableHeader().setReorderingAllowed(false);
         tabla_personas.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tabla_personasMousePressed(evt);
@@ -235,7 +236,7 @@ public class AsignacionDeEmpleos extends javax.swing.JFrame {
                     ""+(++contador),
                     cConsulta.getString("nombrePersona"),
                     cConsulta.getString("DPI"),
-                    buscarNuevos ? "Nuevo" : "Ya ha trabajado aquí"
+                    buscarNuevos ? "Es nuevo" : "Ya ha trabajado aquí"
                 });
             }
             asignar_empleo.setEnabled(!listaIDPersonas.isEmpty());  // Si no hay Personas, no se puede asignar Empleos

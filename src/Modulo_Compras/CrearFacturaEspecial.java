@@ -30,7 +30,7 @@ public class CrearFacturaEspecial extends javax.swing.JFrame {
     private Connection conexion;
     private JFrame ventanaPadre;
     private boolean hacerVisible;
-    private int idProveedor;
+    private int idProveedor, idCicloContable;
     private ArrayList<Integer> listaIDRecibos, listaIDFacturas;
     private ArrayList<Float> listaSaldoCafe;
     private DefaultTableModel modelRecibos;
@@ -98,6 +98,7 @@ public class CrearFacturaEspecial extends javax.swing.JFrame {
                 jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "No hay Recibos por facturar", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12)));
             crear_factura.setEnabled(!listaIDRecibos.isEmpty());
             idProveedor = 0;
+            idCicloContable = 0;    // Entero con el ID del Ciclo Contable en el que se registrará la Partida de la Factura Especial
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla
         } catch (SQLException ex) {
             hacerVisible = false;
@@ -520,6 +521,7 @@ public class CrearFacturaEspecial extends javax.swing.JFrame {
             Calendar fecha = fact_fecha.getCalendar();
             String instruccion;
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta;
             
             // Creación del Proveedor, en caso de que aún no exista
             if (idProveedor == 0) {
@@ -548,6 +550,71 @@ public class CrearFacturaEspecial extends javax.swing.JFrame {
             // Actualización del Recibo para indicar que ya fue facturado
             conexion.prepareStatement("UPDATE Recibo SET Facturado = 1 WHERE Id = "+listaIDRecibos.get(indexRecibo)).executeUpdate();
             JOptionPane.showMessageDialog(this, "Recibo No."+(String)tabla_recibos.getValueAt(indexRecibo, 1)+" Facturado con éxito", "Información", JOptionPane.INFORMATION_MESSAGE);
+            
+            // CREACIÓN DE LA PARTIDA, ASOCIADA A LA FACTURA ESPECIAL QUE SE HA CREADO
+            int idPartida = 0, numeroPartida = 0;
+            // Al validar los datos, idCicloContable contiene el ID del Ciclo al que se relacionará la Partida
+            // Obtención del Número de Partida que tendrá la nueva partida asociada a la Factura Especial
+            cConsulta = sentencia.executeQuery("SELECT COUNT(Numero), MAX(Numero) FROM Partida WHERE CicloContable_Id = "+idCicloContable);
+            cConsulta.next();
+            numeroPartida = (cConsulta.getInt(1)==0) ? 1 : cConsulta.getInt(2)+1;
+            // Creación del Registro de la Partida asociada a la Factura Especial creada
+            instruccion = "INSERT INTO Partida(CicloContable_Id, Numero, Fecha, Descripción) VALUES(";
+            instruccion+= idCicloContable+", "+numeroPartida+", ";
+            instruccion+= "'"+fecha.get(Calendar.YEAR)+"-"+(fecha.get(Calendar.MONTH)+1)+"-"+fecha.get(Calendar.DAY_OF_MONTH)+"', ";
+            instruccion+= "'Extensión de la Factura Especial No. "+fact_numero.getText()+", con fecha de hoy')";
+            conexion.prepareStatement(instruccion).executeUpdate();  // Creación del Registro de la Partida
+            // Obtención del ID de la Partida recién creada
+            cConsulta = sentencia.executeQuery("SELECT LAST_INSERT_ID()");    // Obtiene el ID del último registro 'insertado'
+            cConsulta.next();
+            idPartida = cConsulta.getInt(1);
+            
+            // CREACIÓN DE LOS DETALLES DE LA PARTIDA recién creada
+            // Obtención del ID de todas las cuentas implicadas en la creación de la Partida
+            int idCompras, idIVAporCobrar, idISRRetenido, idIVARetenido, idProveedores;
+            // Obtención del ID de la Cuenta 'Compras'
+            cConsulta = sentencia.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'Compras'");
+            cConsulta.next();
+            idCompras = cConsulta.getInt(1);
+            // Obtención del ID de la Cuenta 'IVA por Cobrar'
+            cConsulta = sentencia.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'IVA por Cobrar'");
+            cConsulta.next();
+            idIVAporCobrar = cConsulta.getInt(1);
+            // Obtención del ID de la Cuenta 'ISR Retenido sobre Facturas Especiales'
+            cConsulta = sentencia.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'ISR Retenido sobre Facturas Especiales'");
+            cConsulta.next();
+            idISRRetenido = cConsulta.getInt(1);
+            // Obtención del ID de la Cuenta 'IVA Retenido sobre Facturas Especiales'
+            cConsulta = sentencia.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'IVA Retenido sobre Facturas Especiales'");
+            cConsulta.next();
+            idIVARetenido = cConsulta.getInt(1);
+            // Obtención del ID de la Cuenta 'Proveedores'
+            cConsulta = sentencia.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'Proveedores'");
+            cConsulta.next();
+            idProveedores = cConsulta.getInt(1);
+            // Cálculo de valores que se incluirán en los Detalles de la Partida
+            float totalFactura, compras, IVAPorCobrar, ISRRetenido, IVARetenido, proveedores;
+            totalFactura = Float.parseFloat(cafe_costo_total.getText());
+            IVAPorCobrar = (totalFactura/1.12f)*0.12f;
+            compras = totalFactura - IVAPorCobrar;
+            IVARetenido = IVAPorCobrar;
+            if (totalFactura <= 30000.00f)
+                ISRRetenido = (totalFactura/1.12f)*0.05f;
+            else
+                ISRRetenido = (30000f/1.12f)*0.05f + ((totalFactura-30000f)/1.12f)*0.07f;
+            proveedores = totalFactura - ISRRetenido - IVARetenido;
+            // Creación de los Detalles de la Partida
+            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idCompras+", "+String.format("%.2f", compras)+", 1)";
+            conexion.prepareStatement(instruccion).executeUpdate(); // Cuenta Compras
+            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idIVAporCobrar+", "+String.format("%.2f", IVAPorCobrar)+", 1)";
+            conexion.prepareStatement(instruccion).executeUpdate(); // Cuenta IVA por Cobrar
+            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idISRRetenido+", "+String.format("%.2f", ISRRetenido)+", 0)";
+            conexion.prepareStatement(instruccion).executeUpdate(); // Cuenta Retención ISR
+            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idIVARetenido+", "+String.format("%.2f", IVARetenido)+", 0)";
+            conexion.prepareStatement(instruccion).executeUpdate(); // Cuenta Retención IVA
+            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idProveedores+", "+String.format("%.2f", proveedores)+", 0)";
+            conexion.prepareStatement(instruccion).executeUpdate(); // Cuenta Proveedores
+            // HASTA AQUÍ SE GARANTIZA LA CREACIÓN DE LA PARTIDA PARA LA FACTURA ESPECIAL REALIZADA
             
             // Ahora, elimino el Recibo ya facturado de la Tabla de Recibos
             int contFil = tabla_recibos.getRowCount(), contCol = tabla_recibos.getColumnCount(), fil, col;
@@ -634,10 +701,22 @@ public class CrearFacturaEspecial extends javax.swing.JFrame {
             fact_numero.setText(""+listaIDFacturas.get(tabla_recibos.getSelectedRow()));
             throw new ExcepcionDatosIncorrectos("El Número de Factura ya existe.\nConsidere utilizar el que se le sugiere.");
         }
-         if (fact_fecha.getDate() == null)
-             throw new ExcepcionDatosIncorrectos("No ha especificado la Fecha de la Factura");
-         try { Float.parseFloat(cafe_costo_unidad.getText()); }
-         catch(NumberFormatException ex) { throw new ExcepcionDatosIncorrectos("El Precio por Quintal debe ser un valor numérico válido"); }
+        if (fact_fecha.getDate() == null)
+            throw new ExcepcionDatosIncorrectos("No ha especificado la Fecha de la Factura");
+        // Verifico que la Fecha esté en un Ciclo Contable existente (lo cual es útil al crear la Partida). Si es válido,
+        // obtengo el ID del Ciclo Contable; de lo contrario idCicloContable == -1
+        Calendar fecha = fact_fecha.getCalendar();
+        ResultSet cConsulta = sentencia.executeQuery("SELECT CicloContable.Id FROM CicloContable "
+                + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
+                + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id "
+                + "WHERE Anio.Anio = "+fecha.get(Calendar.YEAR)+" AND Mes.Id = "+(fecha.get(Calendar.MONTH)+1));
+        idCicloContable = -1;   // Asumo de que el ciclo no existe (si existe se sobreescribe)
+        if (!cConsulta.next())
+            throw new ExcepcionDatosIncorrectos("La Fecha de la Factura no pertenece a un Ciclo Contable existente.\nSeleccione una fecha actual");
+        idCicloContable = cConsulta.getInt(1);
+        // Compruebo que el Costo Unitario del Café sea un valor numérico
+        try { Float.parseFloat(cafe_costo_unidad.getText()); }
+        catch(NumberFormatException ex) { throw new ExcepcionDatosIncorrectos("El Precio por Quintal debe ser un valor numérico válido"); }
     }
     public boolean getHacerVisible() { return hacerVisible; }
     /**

@@ -26,13 +26,17 @@ import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Image;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -50,10 +54,20 @@ public class Principal extends javax.swing.JFrame {
      */
     public Principal() {
         initComponents();
+        // Obtengo la conexión con la Base de Datos
         ConectarConBD obtenerConexion = new ConectarConBD();
         conexion = obtenerConexion.getConexion();
         if (conexion == null)
             System.exit(0);
+        // Ahora determino si en la Base de Datos ya existe el Año en curso
+        try {
+            conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY).executeQuery("CALL nuevoAnio()");
+            // El Procedimiento dentro de la BD se encarga de crear el Año y los Ciclosm, en caso de no existir el primero
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error en procedimiento dentro de la Base de Datos.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+            System.exit(0); // En caso de ocurrir algún error, no se mostrará el programa
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         ImageIcon fot = new javax.swing.ImageIcon(getClass().getResource("/Imagenes/logo.png"));
         Icon icono = new ImageIcon(fot.getImage().getScaledInstance(jLabel1.getWidth(), jLabel1.getHeight(), Image.SCALE_DEFAULT));
@@ -76,7 +90,6 @@ public class Principal extends javax.swing.JFrame {
         jMenuItem6 = new javax.swing.JMenuItem();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
         menu = new javax.swing.JMenuBar();
         menu_crear = new javax.swing.JMenu();
         item_crear_cosecha = new javax.swing.JMenuItem();
@@ -115,13 +128,6 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/imagen.png"))); // NOI18N
-
-        jButton1.setText("Planilla");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
 
         menu_crear.setText("Crear");
 
@@ -299,18 +305,13 @@ public class Principal extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1))
+                .addGap(69, 69, 69))
             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 824, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(45, 45, 45)
-                        .addComponent(jButton1)))
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE))
         );
@@ -406,31 +407,13 @@ public class Principal extends javax.swing.JFrame {
 
     private void item_ver_generar_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_ver_generar_planillaActionPerformed
         VerPlanilla planilla = new VerPlanilla(conexion, this);
-        planilla.setVisible(true);
+        planilla.setVisible(planilla.getHacerVisible());
     }//GEN-LAST:event_item_ver_generar_planillaActionPerformed
 
     private void item_asigacion_empleosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_asigacion_empleosActionPerformed
         AsignacionDeEmpleos asignar = new AsignacionDeEmpleos(conexion, this);
         asignar.setVisible(true);
     }//GEN-LAST:event_item_asigacion_empleosActionPerformed
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        try {
-            String Id_ciclo_contable= "1"; //Id de la relacion entre año y mes
-            String Mes = "Enero"; //Mes de la planilla
-            String Año = "2015"; //Año de la planilla
-            Map parametros  = new HashMap();
-            parametros.put("NumMes", Id_ciclo_contable);
-            parametros.put("Mes", Mes);
-            parametros.put("Año", Año);
-            
-            JasperReport reporte = JasperCompileManager.compileReport("src\\Reportes\\Planilla.jrxml");
-            JasperPrint a = JasperFillManager.fillReport(reporte, parametros,conexion);
-            
-            JasperViewer.viewReport(a,false);
-        } catch (Exception e) {
-            System.out.println("Error:"+e);
-        }
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void item_control_horas_extraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_control_horas_extraActionPerformed
         ControlHorasExtra control = new ControlHorasExtra(conexion, this);
@@ -482,7 +465,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem item_nuevo_puesto;
     private javax.swing.JMenuItem item_pagar_cafe;
     private javax.swing.JMenuItem item_ver_generar_planilla;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
