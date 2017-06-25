@@ -14,6 +14,9 @@ import Modulo_Crear.Crear_Organizacion;
 import Modulo_Crear.CrearCosecha;
 import Conexion.ConectarConBD;
 import Modulo_Compras.CrearFacturaEspecial;
+import Modulo_Finanzas.Buscar_cuenta;
+import Modulo_Finanzas.Estado_Resultados;
+import Modulo_Finanzas.Polizas;
 import Modulo_Inventario.Cotizacion;
 import Modulo_Produccion.CrearOrdenTrilla;
 import Modulo_Produccion.CrearRecibo;
@@ -24,8 +27,10 @@ import Modulo_RecursosHumanos.NuevoPersonal;
 import Modulo_RecursosHumanos.VerPlanilla;
 import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
+import java.awt.Frame;
 import java.awt.Image;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -74,9 +80,11 @@ public class Principal extends javax.swing.JFrame {
 
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         menu = new javax.swing.JMenuBar();
         menu_crear = new javax.swing.JMenu();
         item_crear_cosecha = new javax.swing.JMenuItem();
@@ -99,6 +107,11 @@ public class Principal extends javax.swing.JFrame {
         menu_recursos_humanos = new javax.swing.JMenu();
         item_nuevo_puesto = new javax.swing.JMenuItem();
         item_nuevo_empleado = new javax.swing.JMenuItem();
+        item_asignar_empleo = new javax.swing.JMenuItem();
+        jMenu4 = new javax.swing.JMenu();
+        jMenuItem13 = new javax.swing.JMenuItem();
+        jMenuItem14 = new javax.swing.JMenuItem();
+        jMenuItem15 = new javax.swing.JMenuItem();
         item_asigacion_empleos = new javax.swing.JMenuItem();
         item_control_horas_extra = new javax.swing.JMenuItem();
         item_ver_generar_planilla = new javax.swing.JMenuItem();
@@ -106,6 +119,8 @@ public class Principal extends javax.swing.JFrame {
         jMenuItem4.setText("jMenuItem4");
 
         jMenuItem6.setText("jMenuItem6");
+
+        jMenuItem12.setText("jMenuItem12");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ECEG: Sistema Empresarial");
@@ -120,6 +135,13 @@ public class Principal extends javax.swing.JFrame {
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -291,6 +313,34 @@ public class Principal extends javax.swing.JFrame {
 
         menu.add(menu_recursos_humanos);
 
+        jMenu4.setText("Financiero");
+
+        jMenuItem13.setText("Polizas");
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem13ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem13);
+
+        jMenuItem14.setText("Balance de Saldos");
+        jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem14ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem14);
+
+        jMenuItem15.setText("Estado de Resultados");
+        jMenuItem15.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem15ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem15);
+
+        menu.add(jMenu4);
+
         setJMenuBar(menu);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -300,7 +350,9 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2)))
             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 824, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -310,7 +362,10 @@ public class Principal extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(45, 45, 45)
-                        .addComponent(jButton1)))
+                        .addComponent(jButton1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jButton2)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE))
         );
@@ -415,7 +470,7 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_item_asigacion_empleosActionPerformed
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            String Id_ciclo_contable= "1"; //Id de la relacion entre año y mes
+            String Id_ciclo_contable= "2"; //Id de la relacion entre año y mes
             String Mes = "Enero"; //Mes de la planilla
             String Año = "2015"; //Año de la planilla
             Map parametros  = new HashMap();
@@ -432,6 +487,71 @@ public class Principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
+             new Polizas(conexion).setVisible(true);
+    }//GEN-LAST:event_jMenuItem13ActionPerformed
+
+    private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
+        try {
+            String Activo= ""; //total del Activo
+            String Pasivo = ""; //total del pasivo
+            String Fecha = ""; //Fecha de corte del dia
+            String mes = "";
+            //Tomo el total de activo
+            ResultSet consulta = conexion.createStatement().executeQuery("SELECT SUM(cuentas.Saldo) FROM cuentas WHERE cuentas.Activo = 1;");
+            consulta.next();
+            Activo = consulta.getString(1);
+            consulta = conexion.createStatement().executeQuery("SELECT SUM(cuentas.Saldo) FROM cuentas WHERE cuentas.Pasivo = 1;");
+            consulta.next();
+            Pasivo = consulta.getString(1);
+            consulta = conexion.createStatement().executeQuery("SELECT YEAR(NOW()),MONTH(NOW()),DAY(NOW())");
+            consulta.next();
+            switch(consulta.getString(2)){
+                case "1": mes = "Enero";
+                    break;
+                case "2": mes = "Febrero";
+                    break;
+                case "3": mes = "Marzo";
+                    break;
+                case "4": mes = "Abril";
+                    break;
+                case "5": mes = "Mayo";
+                    break;
+                case "6": mes = "Junio";
+                    break;
+                case "7": mes = "Julio";
+                    break;
+                case "8": mes = "Agosto";
+                    break;
+                case "9": mes = "Septiembre";
+                    break;
+                case "10": mes = "Octubre";
+                    break;
+                case "11": mes = "Noviembre";
+                    break;
+                case "12": mes = "Diciembre";
+                    break;
+            }
+            
+            Fecha = consulta.getString(3)+" de "+mes+consulta.getString(1);
+            
+            Map parametros  = new HashMap();
+            parametros.put("Total_Activo", Activo);
+            parametros.put("Total_Pasivo", Pasivo);
+            parametros.put("Fecha", Fecha);
+            
+            JasperReport reporte = JasperCompileManager.compileReport("src\\Reportes\\Balance de Saldos.jrxml");
+            JasperPrint a = JasperFillManager.fillReport(reporte, parametros,conexion);
+            
+            JasperViewer.viewReport(a,false);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_jMenuItem14ActionPerformed
+
+    private void jMenuItem15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem15ActionPerformed
+        new Estado_Resultados(conexion).setVisible(true);
+    }//GEN-LAST:event_jMenuItem15ActionPerformed
     private void item_control_horas_extraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_control_horas_extraActionPerformed
         ControlHorasExtra control = new ControlHorasExtra(conexion, this);
         control.setVisible(control.getHacerVisible());
@@ -483,14 +603,20 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem item_pagar_cafe;
     private javax.swing.JMenuItem item_ver_generar_planilla;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
+    private javax.swing.JMenuItem jMenuItem13;
+    private javax.swing.JMenuItem jMenuItem14;
+    private javax.swing.JMenuItem jMenuItem15;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;

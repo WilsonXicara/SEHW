@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Constancias" language="groovy" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="99cc0fd1-43d6-4d94-8b63-6261622325ac">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="CicloContable" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Mes" class="java.lang.String"/>
+	<parameter name="Año" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT personal.Id, personal.Nombre,puesto.Nombre_Puesto,personal.DPI,empleo.SueldoBase,pago.CantidadHorasExtras,pago.PrecioHoraExtra,pago.IGSS,pago.Prestamo FROM empleo INNER JOIN Personal ON empleo.Personal_Id = personal.Id INNER JOIN puesto ON empleo.Puesto_Id = puesto.Id INNER JOIN pago ON empleo.Id = pago.Empleo_Id WHERE pago.CicloContable_Id = $P{CicloContable};]]>
+	</queryString>
+	<field name="Id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Nombre" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Nombre_Puesto" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="DPI" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="SueldoBase" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="CantidadHorasExtras" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="PrecioHoraExtra" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="IGSS" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Prestamo" class="java.lang.Float">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<group name="Id" isStartNewColumn="true">
+		<groupExpression><![CDATA[$F{Id}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="752" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="98" width="572" height="225" uuid="964c66ce-1687-458c-82a8-c2d2c0fbea28"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="0" y="78" width="100" height="20" uuid="fd3f8a0a-3a4c-4924-a882-19ee06d2c50f"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="78" width="178" height="20" uuid="042c6f4c-d8e2-4ccd-8e62-1ea79ed80822"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="278" y="78" width="100" height="20" uuid="1b929175-a2d6-43e3-98bf-0ea443ad1e0a"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Puesto : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="378" y="78" width="194" height="20" uuid="f9ae803f-076e-44c4-b80c-f0fe6ace26dd"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Nombre_Puesto}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="297" y="137" width="100" height="20" uuid="5fa0fdef-f316-402c-9edc-6685e7f3145f"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Sueldo Base : ]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="397" y="137" width="100" height="20" uuid="3b5c4711-ea1d-4570-9f08-6488dae9967e"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SueldoBase}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="24" y="157" width="115" height="20" uuid="2e91b41b-2c86-4f09-8096-ffcf75ed4b7e"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Cantidad Horas Extra :]]></text>
+			</staticText>
+			<textField pattern="###0.00">
+				<reportElement x="139" y="157" width="100" height="20" uuid="2de9b437-14ea-4ff2-a537-c8e71cb92523"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CantidadHorasExtras}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="39" y="177" width="100" height="20" uuid="1fbfb6e3-4c92-4155-ad6a-2a1c35428d77"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[PrecioHorasExtra]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="139" y="177" width="100" height="20" uuid="390c13c3-3ab8-46fa-8628-4612ba3c0af0"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PrecioHoraExtra}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="297" y="177" width="100" height="20" uuid="6d8a1e44-9ca3-44e8-ba4f-0102d2a1a19e"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Total Horas Extra:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="397" y="177" width="100" height="20" uuid="3a013651-8224-4954-8458-11e6af053a51"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CantidadHorasExtras}*$F{PrecioHoraExtra}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="297" y="197" width="100" height="20" uuid="11469156-24b4-44cd-9a90-11934c1f7f79"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Total Ingresos:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="397" y="197" width="100" height="20" uuid="d0bb5eed-8c98-4a32-8e01-38ff8e519fc9"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SueldoBase}+($F{CantidadHorasExtras}*$F{PrecioHoraExtra})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="261" y="109" width="100" height="20" uuid="91f71de4-c550-4a8b-abf0-70992cba0a3c"/>
+				<textElement>
+					<font fontName="Times New Roman" size="15" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[INGRESOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="261" y="217" width="100" height="20" uuid="54d39b63-9e30-44b9-a813-960fa34e44b0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="15" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[DESCUENTOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="45" y="237" width="100" height="20" uuid="ee95b89e-b063-4a42-b1c7-4ce73c5cb2ee"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[IGSS :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="145" y="237" width="100" height="20" uuid="3bfee3c4-517a-476c-833a-181517a5c1d6"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IGSS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="45" y="257" width="100" height="20" uuid="d2bcef26-905d-47f8-bfed-b5e6326572dc"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Prestamos :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="145" y="257" width="100" height="20" uuid="00c7617a-b41b-4ec6-b7e5-96a61b03b752"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="278" y="257" width="119" height="20" uuid="1488dc6a-5509-4413-89b5-117daabb7981"/>
+				<textElement>
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Total Descuentos :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="397" y="257" width="100" height="20" uuid="9d86f2b8-b1e8-4dbf-a435-030721836174"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IGSS}+$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="161" y="288" width="100" height="20" uuid="ddfedc76-a2a2-4145-b688-e3608b90c717"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Sueldo Líquido:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="261" y="288" width="161" height="20" uuid="df358da7-755b-4f2e-91d3-9bb733ff6777"/>
+				<textElement>
+					<font size="15" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Q "+$F{SueldoBase}+($F{CantidadHorasExtras}*$F{PrecioHoraExtra})-$F{IGSS}-$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="126" y="356" width="152" height="1" uuid="c9652715-6294-43e3-ade8-768433a289ed"/>
+			</line>
+			<staticText>
+				<reportElement x="178" y="358" width="100" height="20" uuid="be602ea8-07d5-4131-ad3a-f6d770af1a9f"/>
+				<text><![CDATA[Contabilidad]]></text>
+			</staticText>
+			<line>
+				<reportElement x="338" y="357" width="140" height="1" uuid="bdda38cc-d124-44d1-9ffe-8a752d57b05c"/>
+			</line>
+			<textField>
+				<reportElement x="361" y="358" width="100" height="20" uuid="52d51b9b-61cc-460b-96a6-f26b4ee79b64"/>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="389" width="572" height="1" uuid="ea830d72-c38e-4ec7-a6e0-0c48459eccb1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="171" y="50" width="277" height="28" uuid="4fadc866-6997-499c-822d-2df2e3eb3154"/>
+				<textElement>
+					<font fontName="Felix Titling" size="16" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pago del mes de " +$P{Mes}+" del "+$P{Año}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="348" y="-2" width="224" height="52" uuid="d1393682-b458-477d-9eee-49fcb6c0db26"/>
+				<imageExpression><![CDATA["src\\Imagenes\\exportadora.jpg"]]></imageExpression>
+			</image>
+			<image>
+				<reportElement x="348" y="390" width="224" height="52" uuid="d01589d4-fa19-44cc-bbc0-50f8c15ac6e1"/>
+				<imageExpression><![CDATA["src\\Imagenes\\exportadora.jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="171" y="441" width="277" height="28" uuid="a737c18c-7383-4269-b0e0-110587e0d5a5"/>
+				<textElement>
+					<font fontName="Felix Titling" size="16" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pago del mes de " +$P{Mes}+" del "+$P{Año}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="161" y="469" width="100" height="20" uuid="53a0c40b-cba5-431f-9817-683dd2d7b976"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="61" y="469" width="100" height="20" uuid="4af76896-c70f-4824-8d82-4685844b00d2"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre : ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="415" y="469" width="100" height="20" uuid="1ceaa722-38a2-467f-8e04-3c0c1d3089e5"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Nombre_Puesto}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="315" y="469" width="100" height="20" uuid="b15f5e61-99a6-458d-9b69-11b6b354edf9"/>
+				<textElement>
+					<font fontName="Times New Roman" size="13" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Puesto : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="304" y="520" width="100" height="20" uuid="23bd91f4-04a9-49b3-b329-d021f88b4448"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Sueldo Base : ]]></text>
+			</staticText>
+			<textField pattern="###0.00">
+				<reportElement x="139" y="539" width="100" height="20" uuid="8a4da126-df0f-41ba-a065-bf6091d29a18"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CantidadHorasExtras}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="397" y="579" width="100" height="20" uuid="1f70fb91-9827-4b26-8d91-bb770fcee521"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SueldoBase}+($F{CantidadHorasExtras}*$F{PrecioHoraExtra})]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement x="404" y="520" width="100" height="20" uuid="b28d8c82-27a8-428e-b5ac-0ed4b27c3f4a"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SueldoBase}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement x="393" y="559" width="100" height="20" uuid="31df52b6-d3d3-490f-aeb8-952883cb8fb4"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CantidadHorasExtras}*$F{PrecioHoraExtra}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="245" y="499" width="100" height="20" uuid="45ae4a10-683d-408b-8e9b-b376b037f13f"/>
+				<textElement>
+					<font fontName="Times New Roman" size="14" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[INGRESOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="293" y="579" width="100" height="20" uuid="9e289157-40d3-47c1-aca1-83be1349aeee"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Total Ingresos:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="39" y="559" width="100" height="20" uuid="4ab56350-6d86-45bb-832d-3c014ada2bc9"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[PrecioHorasExtra]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="139" y="559" width="100" height="20" uuid="45f5438e-e4a3-44d8-a946-9fe6ab32a037"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PrecioHoraExtra}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="293" y="559" width="100" height="20" uuid="f838a6da-8528-4aae-840f-849d8740b9b3"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Total Horas Extra:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="24" y="539" width="115" height="20" uuid="008a2189-2631-477d-b428-41556a8f5674"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Cantidad Horas Extra :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="113" y="619" width="100" height="20" uuid="0ce8af65-7e42-4263-9c54-1f2baae98361"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IGSS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="13" y="619" width="100" height="20" uuid="adf183c6-27c4-4d6a-b72f-21dc30b1c469"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[IGSS :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="229" y="599" width="100" height="20" uuid="abecc9d3-b7c4-46ec-b8c9-905238aaabb1"/>
+				<textElement>
+					<font fontName="Times New Roman" size="14" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[DESCUENTOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="278" y="639" width="119" height="20" uuid="5f2eab3a-c96e-43d8-9c7e-8171d4eded4f"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Total Descuentos :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="397" y="639" width="100" height="20" uuid="48df453a-7e91-4c22-9426-63af90ba1db0"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{IGSS}+$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="261" y="670" width="161" height="20" uuid="e474c981-301a-46ae-be96-2d950b27076f"/>
+				<textElement>
+					<font size="15" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SueldoBase}+($F{CantidadHorasExtras}*$F{PrecioHoraExtra})-$F{IGSS}-$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="16" y="639" width="100" height="20" uuid="97c68a91-b724-4723-b50e-a4ac12a00336"/>
+				<textElement>
+					<font fontName="Bookman Old Style" size="12"/>
+				</textElement>
+				<text><![CDATA[Prestamos :]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="116" y="639" width="100" height="20" uuid="c6c7086e-1e69-4cec-a099-eea5dab90ba2"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Prestamo}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="161" y="670" width="100" height="20" uuid="60ffcd6f-8438-4a46-b602-bf9df0fcb525"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<text><![CDATA[Sueldo Líquido:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="488" width="572" height="1" uuid="15731227-22ab-45a8-a51a-d0e1fafaca20"/>
+			</line>
+			<textField>
+				<reportElement x="348" y="730" width="100" height="20" uuid="6f4767f4-2f47-4604-9c6a-4c7af84d350a"/>
+				<textFieldExpression><![CDATA[$F{Nombre}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="178" y="732" width="100" height="20" uuid="a5a49f49-c80c-4409-914e-4fa9d5707ede"/>
+				<text><![CDATA[Contabilidad]]></text>
+			</staticText>
+			<line>
+				<reportElement x="126" y="731" width="152" height="1" uuid="58b91958-7504-4a15-ad05-7036655413d1"/>
+			</line>
+			<line>
+				<reportElement x="329" y="730" width="140" height="1" uuid="a82bee92-cc31-4b7a-be11-4ccc7c33ab76"/>
+			</line>
+			<rectangle>
+				<reportElement x="572" y="488" width="0" height="216" uuid="34ac6494-771b-4932-a515-c8b05bf1b08b"/>
+			</rectangle>
+			<line>
+				<reportElement x="0" y="704" width="572" height="1" uuid="f836244a-e327-4a40-ae87-f4033c4694cb"/>
+			</line>
+			<rectangle>
+				<reportElement x="0" y="489" width="0" height="216" uuid="d5c7479c-340e-4b40-888f-51e6651c9c68"/>
+			</rectangle>
+		</band>
+	</detail>
+</jasperReport>
