@@ -71,7 +71,7 @@ public class Cotizacion extends javax.swing.JFrame {
             }
             if (listaIDCafe.isEmpty()) {
                 hacerVisible = false;
-                JOptionPane.showMessageDialog(this, "No se pueden crear Cotizaciones pues todos no hay Café disponible en Bodega", "Datos faltantes", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "No se pueden crear Cotizaciones pues no hay Café disponible en Bodega", "Datos faltantes", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             // Obtengo la fecha de hoy (desde la Base de Datos)

@@ -1,0 +1,508 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Modulo_RecursosHumanos;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author Wilson Xicará
+ */
+public class VerPlanilla extends javax.swing.JFrame {
+    private Connection conexion;
+    private JFrame ventanaPadre;
+    private boolean hacerVisible, datosCargados;
+    private ArrayList<Integer> listaIDPuestos, listaIDCiclos, listaIDEmpleo;
+    private Date fechaActual;
+    private DefaultTableModel modelPlanilla, modelEmpleos;
+    /**
+     * Creates new form VerPlanilla
+     */
+    public VerPlanilla() {
+        initComponents();
+    }
+    public VerPlanilla(Connection conexion, JFrame ventanaPadre) {
+        initComponents();
+        this.conexion = conexion;
+        this.ventanaPadre = ventanaPadre;
+        modelPlanilla = (DefaultTableModel) tabla_empleados.getModel();
+        listaIDPuestos = new ArrayList<>();
+        listaIDCiclos = new ArrayList<>();
+        listaIDEmpleo = new ArrayList<>();
+        this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
+        
+        // Obtengo los datos necesarios desde la Base de Datos
+        try {
+            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta;
+            // Obtención del listado de Puestos
+            cConsulta = sentencia.executeQuery("SELECT Id, Nombre_Puesto FROM Puesto");
+            while (cConsulta.next()) {
+                listaIDPuestos.add(cConsulta.getInt("Id"));
+                puesto.addItem(cConsulta.getString("Nombre_Puesto"));
+            } puesto.addItem("TODOS");  // En caso de que se quieran mostrar a todos los trabajadores activos
+            // Obtención del listado de todos los Ciclos Contables existentes (compuestos de mes y año)
+            cConsulta = sentencia.executeQuery("SELECT CicloContable.Id idCiclo, CONCAT(Anio.Anio, ' - ', Mes.Mes) Ciclo FROM CicloContable "
+                    + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
+                    + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id");
+            while (cConsulta.next()) {
+                listaIDCiclos.add(cConsulta.getInt("idCiclo"));
+                ciclo_contable.addItem(cConsulta.getString("Ciclo"));
+            }
+            datosCargados = true;
+            // En caso de no existir algún Puesto o algún Ciclo contable, no se mostrará esta ventana
+            if (listaIDPuestos.isEmpty() || listaIDCiclos.isEmpty()) {
+                hacerVisible = false;
+                String mensaje = "No se puede mostrar la vista previa de la Planilla pues falta lo siguiente:";
+                mensaje+= (listaIDPuestos.isEmpty()) ? "\n -> Puestos laborales" : "";
+                mensaje+= (listaIDCiclos.isEmpty()) ? "\n -> Ciclos contables" : "";
+                mensaje+= "\n\nConsulte con el Administrador para proporcionar dichos datos\na la Base de Datos e inténtelo nuevamente.";
+                JOptionPane.showMessageDialog(this, mensaje, "Datos faltantes", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            // Obtención la Fecha de hoy (desde la Base de Datos)
+            cConsulta = sentencia.executeQuery("SELECT YEAR(NOW()), MONTH(NOW()), DAY(NOW())");
+            cConsulta.next();
+            fechaActual = new Date(cConsulta.getInt(1)-1900, cConsulta.getInt(2)-1, cConsulta.getInt(3));
+            fecha_pagos.setDate(fechaActual);
+            cConsulta.close();
+            // Otras configuraciones importantes
+            listaIDEmpleo = new ArrayList<>();
+            modelEmpleos = (DefaultTableModel)tabla_empleados.getModel();
+            fecha_pagos.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
+            this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
+        } catch (SQLException ex) {
+            hacerVisible = false;
+            JOptionPane.showMessageDialog(this, "No se puede obtener alguno de los listados desde la Base de Datos.\n\n"+ex.getMessage(), "Error al intentar obtener datos", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(VerPlanilla.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        generar_planilla = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tabla_empleados = new javax.swing.JTable();
+        etiqueta_ciclo_contable = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        ciclo_contable = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+        puesto = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        fecha_pagos = new com.toedter.calendar.JDateChooser();
+        mostrar_trabajadores = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        prestamo = new javax.swing.JTextField();
+        editar_prestamo = new javax.swing.JButton();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Planilla");
+
+        generar_planilla.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        generar_planilla.setText("Generar Planilla");
+        generar_planilla.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                generar_planillaActionPerformed(evt);
+            }
+        });
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Total de Empleados:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+
+        tabla_empleados.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "No.", "Empleado", "DPI", "Puesto", "Sueldo Base", "Bonificación", "Horas Extra", "Total Horas Extra", "IGSS", "Préstamos", "Sueldo Total"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tabla_empleados.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabla_empleados.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tabla_empleadosMousePressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tabla_empleados);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        );
+
+        etiqueta_ciclo_contable.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel2.setText("Ciclo contable:");
+
+        ciclo_contable.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ciclo_contableItemStateChanged(evt);
+            }
+        });
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel5.setText("Puesto:");
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel8.setText("Fecha actual:");
+
+        mostrar_trabajadores.setText("Mostrar trabajadores");
+        mostrar_trabajadores.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostrar_trabajadoresActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel9.setText("Préstamo:");
+
+        prestamo.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                prestamoFocusLost(evt);
+            }
+        });
+        prestamo.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                prestamoKeyTyped(evt);
+            }
+        });
+
+        editar_prestamo.setText("Editar");
+        editar_prestamo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editar_prestamoActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ciclo_contable, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(puesto, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(mostrar_trabajadores)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(etiqueta_ciclo_contable))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fecha_pagos, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(prestamo, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(editar_prestamo))))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(323, 323, 323)
+                .addComponent(generar_planilla)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel8)
+                    .addComponent(fecha_pagos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(etiqueta_ciclo_contable)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(ciclo_contable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel5)
+                        .addComponent(puesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mostrar_trabajadores)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(prestamo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(editar_prestamo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 182, Short.MAX_VALUE)))
+                .addComponent(generar_planilla)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void ciclo_contableItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ciclo_contableItemStateChanged
+        
+    }//GEN-LAST:event_ciclo_contableItemStateChanged
+    /**
+     * Acción que muestra el listado de todos los Empleos, así como el diseño básico de la Planilla final.
+     * @param evt 
+     */
+    private void mostrar_trabajadoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_trabajadoresActionPerformed
+        // Borro los registro de la búsqueda anterior
+        modelEmpleos.setRowCount(0);
+        listaIDEmpleo.clear();
+        int indexPuesto = puesto.getSelectedIndex();    // Este JComboBox nunca tendrá .getSelectedIndex() == -1
+        // En esta búsqueda sólo se obtiene la información referente a la Persona y su Empleo vigente, sin entrar aún en
+        // el asunto del Ciclo Contable (esto se evaluará en el JComboBox correspondiente)
+        String instruccion = "SELECT Empleo.Id idEmpleo, Personal.Nombre, Personal.DPI, Puesto.Nombre_Puesto, Empleo.SueldoBase, 250 Bonificacion FROM Empleo "
+                + "INNER JOIN Personal ON Empleo.Personal_Id = Personal.Id "
+                + "INNER JOIN Puesto ON Empleo.Puesto_Id = Puesto.Id "
+                + "WHERE Empleo.Vigente = 1";
+        if (indexPuesto != (puesto.getItemCount()-1))
+            instruccion+= " AND Puesto.Id = "+listaIDPuestos.get(indexPuesto);
+        // Obtengo el listado de todos los trabajadores activos que concuerdan con la búsqueda
+        try {
+            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta = sentencia.executeQuery(instruccion);
+            int contador = 0;
+            while(cConsulta.next()) {
+                listaIDEmpleo.add(cConsulta.getInt("idEmpleo"));
+                modelEmpleos.addRow(new String[]{
+                    ""+(++contador),
+                    cConsulta.getString("Nombre"),
+                    cConsulta.getString("DPI"),
+                    cConsulta.getString("Nombre_Puesto"),
+                    cConsulta.getString("SueldoBase"),
+                    cConsulta.getString("Bonificacion"),
+                    // Los datos específicos de un ciclo contable estarán como 0.0
+                    "0.0",  // La cantidad total de Horas Extra
+                    "0.0",  // El Precio del total de Horas Extra
+                    "0.0",  // El IGSS, pues está en función del Precio total de Horas Extra
+                    "0.0",  // Los Préstamos, que pueden ser editados
+                    "0.0"   // El Sueldo Total, que depende de todos los datos anteriores
+                });
+            }   // Hasta aquí se garantiza la obtención de todos los trabajadores activos
+            
+            // Ahora obtengo la información de las Horas Extra e IGSS de todos los Empleos mostrados
+            buscar_datos_por_ciclo(ciclo_contable.getSelectedIndex());
+            prestamo.setText("");   // Limpio este campo, donde se podrá editar los Préstamos
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al intentar obtener los registros desde la Base de Datos.\n\nDescripción:\n"+ex, "Error de conexión", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_mostrar_trabajadoresActionPerformed
+
+    private void prestamoFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_prestamoFocusLost
+        // Evento para cuando hora_inicio pierde el Focus
+    }//GEN-LAST:event_prestamoFocusLost
+
+    private void prestamoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_prestamoKeyTyped
+        char tecla = evt.getKeyChar();
+        int cantidad = prestamo.getText().length();
+        /*
+
+        if (cantidad < 6) {
+            if (!Pattern.compile("\\d").matcher(String.valueOf(tecla)).matches())
+            evt.consume();
+        } else if (cantidad == 7) {
+            if (tecla != '-')
+            evt.consume();
+        } else if (cantidad < 9) {
+            if (!Pattern.compile("\\d").matcher(String.valueOf(tecla)).matches())
+            evt.consume();
+        } else {
+            evt.consume();
+        }*/
+    }//GEN-LAST:event_prestamoKeyTyped
+
+    private void tabla_empleadosMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_empleadosMousePressed
+        // Se carga la cantidad del Préstamo que ha realizado el Empleado seleccionado
+        prestamo.setText((String)tabla_empleados.getValueAt(tabla_empleados.getSelectedRow(), 9));
+    }//GEN-LAST:event_tabla_empleadosMousePressed
+
+    private void editar_prestamoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editar_prestamoActionPerformed
+        // Se asume que se tiene seleccionado un registro Empleado
+        int index = tabla_empleados.getSelectedRow();
+        // Actualización del Sueldo Total (que disminuye con el Préstamo realizado). Regreso el Préstamo anterior para calcular el nuevo
+        float nuevoSueldoTotal = Float.parseFloat((String)tabla_empleados.getValueAt(index, 10)) +
+                Float.parseFloat((String)tabla_empleados.getValueAt(index, 9)) - Float.parseFloat(prestamo.getText());
+        tabla_empleados.setValueAt(prestamo.getText(), index, 9);   // Actualizo el valor de la Tabla
+        tabla_empleados.setValueAt(""+nuevoSueldoTotal, index, 10);
+        prestamo.setText("");
+    }//GEN-LAST:event_editar_prestamoActionPerformed
+    /**
+     * Esta acción permite crear los Pagos en la Base de Datos, asociada al Ciclo Contable y los Empleos mostrados en la Tabla.
+     * Se crearán los pagos siempre y cuando aún no existan, o se actualizan si ya existen
+     * @param evt 
+     */
+    private void generar_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generar_planillaActionPerformed
+        int idCiclo = listaIDCiclos.get(ciclo_contable.getSelectedIndex());
+        // Se crearán los Pagos de todos los Empleados Mostrados (si estos pagos aún no existen)
+        int cantidad = listaIDEmpleo.size();
+        Calendar fecha = fecha_pagos.getCalendar();
+        for(int cont=0; cont<cantidad; cont++) {
+            int idEmpleo = listaIDEmpleo.get(cont);
+            // Obtengo la cantidad de Horas Extra del cont-ésimo Empleo en el idCicloContable-ésimo Ciclo
+            try {
+                Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                ResultSet cConsulta;
+                // Verifico si aún no existe el Pago del cont-ésimo Empleo en el CicloContable seleccionado
+                cConsulta = sentencia.executeQuery("SELECT Empleo_Id FROM Pago WHERE Empleo_Id = "+idEmpleo+" AND CicloContable_Id = "+idCiclo);
+                if (!cConsulta.next()) {    // El Pago aún no existe. Se creará
+                    String instruccion = "INSERT INTO Pago(Empleo_Id, CicloContable_Id, Fecha, CantidadHorasExtras, IGSS, Prestamo, PrecioHoraExtra) VALUES(";
+                    instruccion+= idEmpleo+", "+idCiclo+", ";
+                    instruccion+= "'"+fecha.get(Calendar.YEAR)+"-"+(fecha.get(Calendar.MONTH)+1)+"-"+fecha.get(Calendar.DAY_OF_MONTH)+"', ";
+                    instruccion+= ""+Float.parseFloat((String)tabla_empleados.getValueAt(cont, 6))+", ";
+                    instruccion+= ""+Float.parseFloat((String)tabla_empleados.getValueAt(cont, 8))+", ";
+                    instruccion+= ""+Float.parseFloat((String)tabla_empleados.getValueAt(cont, 9))+", ";
+                    instruccion+= ""+((Float.parseFloat((String)tabla_empleados.getValueAt(cont, 4))/(30*8))*1.5f)+")";
+                    conexion.prepareStatement(instruccion).executeUpdate();
+                }   // Hasta aquí se garantiza la creación del Pago del cont-ésimo empleado el el Ciclo Contable seleccionado
+            } catch (SQLException ex) {
+                System.out.println("Error al intentar crear el Pago del Empleado.Id = "+listaIDEmpleo.get(cont));
+//                Logger.getLogger(VerPlanilla.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        JOptionPane.showMessageDialog(this, "Se han creado los Pagos exitosamente", "Datos guardados", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_generar_planillaActionPerformed
+
+    /**
+     * Este método buscará, extraerá y calculará los precios de las Horas Extras y el IGSS de los empleados almacenados en
+     * listaIDEmpleo, en el listaIDCiclos.get(idCicloContable) que esté seleccionado
+     * @param idCicloContable 
+     */
+    private void buscar_datos_por_ciclo(int idCicloContable) {
+        int cantidad = listaIDEmpleo.size();
+        for(int cont=0; cont<cantidad; cont++) {
+            // Obtengo la cantidad de Horas Extra del cont-ésimo Empleo en el idCicloContable-ésimo Ciclo
+            try {
+                Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                String instruccion = "SELECT COUNT(HorasExtra), SUM(HorasExtra) FROM HorasExtras "
+                        + "WHERE Empleo_Id = "+listaIDEmpleo.get(cont)+" AND CicloContable_Id = "+listaIDCiclos.get(idCicloContable);
+                ResultSet cConsulta = sentencia.executeQuery(instruccion);  // Sólo devuelve dos celdas
+                cConsulta.next();
+                float cantidadHorasExtra = (cConsulta.getInt(1)==0) ? 0.0f : cConsulta.getFloat(2);
+                tabla_empleados.setValueAt(""+cantidadHorasExtra, cont, 6); // Inserto este valor en la Tabla
+                // Ahora calculo el Costo Total del Total de Horas Extras
+                float sueldoBase = Float.parseFloat((String)tabla_empleados.getValueAt(cont, 4));   // Obtengo el Sueldo Base
+                float totalHorasExtra = ((sueldoBase/(30*8))*1.5f)*cantidadHorasExtra;
+                tabla_empleados.setValueAt(""+totalHorasExtra, cont, 7);    // Inserto el Costo del Total de Horas Extra
+                // Cálculo del Valor de IGSS
+                float igss = (sueldoBase + totalHorasExtra)*0.0483f;
+                tabla_empleados.setValueAt(""+igss, cont, 8);   // Inserto el IGSS en la Tabla
+                // El Préstamo queda como está (se podrá editar más adelante)
+                // Cálculo del Sueldo Total
+                tabla_empleados.setValueAt(""+(sueldoBase + 250f + totalHorasExtra - igss), cont, 10);
+            } catch (SQLException ex) {
+                System.out.println("Error al obtener los registros del Empleo.Id = "+listaIDEmpleo.get(cont));
+//                Logger.getLogger(VerPlanilla.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(VerPlanilla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(VerPlanilla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(VerPlanilla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(VerPlanilla.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new VerPlanilla().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> ciclo_contable;
+    private javax.swing.JButton editar_prestamo;
+    private javax.swing.JLabel etiqueta_ciclo_contable;
+    private com.toedter.calendar.JDateChooser fecha_pagos;
+    private javax.swing.JButton generar_planilla;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton mostrar_trabajadores;
+    private javax.swing.JTextField prestamo;
+    private javax.swing.JComboBox<String> puesto;
+    private javax.swing.JTable tabla_empleados;
+    // End of variables declaration//GEN-END:variables
+}

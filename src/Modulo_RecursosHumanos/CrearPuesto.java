@@ -6,7 +6,15 @@
 package Modulo_RecursosHumanos;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -15,6 +23,9 @@ import javax.swing.JFrame;
 public class CrearPuesto extends javax.swing.JFrame {
     private Connection conexion;
     private JFrame ventanaPadre;
+    private boolean hacerVisible;
+    private ArrayList<String> listaDescripcionPuestos;
+    private DefaultTableModel modelPuestos;
     /**
      * Creates new form CrearPuesto
      */
@@ -25,6 +36,27 @@ public class CrearPuesto extends javax.swing.JFrame {
         initComponents();
         this.conexion = conexion;
         this.ventanaPadre = ventanaPadre;
+        hacerVisible = true;
+        
+        
+        // Obtengo los datos de los Puestos ya existentes, para evitar repetición
+        try {
+            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta;
+            // Obtención del listado de Descripciones de los Puestos existentes
+            cConsulta = sentencia.executeQuery("SELECT Nombre_Puesto, Descripcion FROM Puesto");
+            listaDescripcionPuestos = new ArrayList<>();
+            modelPuestos = (DefaultTableModel)tabla_puestos_existentes.getModel();
+            while (cConsulta.next()) {
+                listaDescripcionPuestos.add(cConsulta.getString("Descripcion"));
+                modelPuestos.addRow(new String[]{""+(tabla_puestos_existentes.getRowCount()+1), cConsulta.getString("Nombre_Puesto")});
+            }
+            this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
+        } catch (SQLException ex) {
+            hacerVisible = false;
+            JOptionPane.showMessageDialog(this, "No se puede obtener algunos datos desde la Base de Datos.\n\n"+ex.getMessage(), "Error al intentar obtener datos", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(CrearPuesto.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -36,17 +68,22 @@ public class CrearPuesto extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        nombre = new javax.swing.JTextField();
+        nombre_puesto = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        descripcion_puesto = new javax.swing.JTextArea();
         crear_puesto = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tabla_puestos_existentes = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        descripcion_puestos_existentes = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Crear nuevo Puesto");
 
-        nombre.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        nombre_puesto.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel6.setText("Nombre:");
@@ -54,9 +91,9 @@ public class CrearPuesto extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel3.setText("Descripción:");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        descripcion_puesto.setColumns(20);
+        descripcion_puesto.setRows(5);
+        jScrollPane1.setViewportView(descripcion_puesto);
 
         crear_puesto.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         crear_puesto.setText("Crear");
@@ -66,26 +103,75 @@ public class CrearPuesto extends javax.swing.JFrame {
             }
         });
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Puestos ya existentes:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+
+        tabla_puestos_existentes.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "No.", "Puesto"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tabla_puestos_existentes.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabla_puestos_existentes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tabla_puestos_existentesMousePressed(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tabla_puestos_existentes);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        );
+
+        descripcion_puestos_existentes.setColumns(20);
+        descripcion_puestos_existentes.setRows(5);
+        jScrollPane3.setViewportView(descripcion_puestos_existentes);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nombre_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(133, 133, 133)
-                        .addComponent(crear_puesto)))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(crear_puesto))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -94,21 +180,69 @@ public class CrearPuesto extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(nombre_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addComponent(crear_puesto)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(crear_puesto)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void tabla_puestos_existentesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_puestos_existentesMousePressed
+        int index = tabla_puestos_existentes.getSelectedRow();
+        descripcion_puestos_existentes.setText((index==-1) ? "" : listaDescripcionPuestos.get(index));
+    }//GEN-LAST:event_tabla_puestos_existentesMousePressed
+
     private void crear_puestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crear_puestoActionPerformed
-        // Código para Crear un nuevo Puesto
+        if (nombre_puesto.getText().length() == 0) {
+            JOptionPane.showMessageDialog(this, "Especifique el Nombre del nuevo Puesto", "Datos incompletos", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        // Verifico que el Nombre del Puesto aún no exista
+        String nombrePuesto = nombre_puesto.getText(), descripcionPuesto = descripcion_puesto.getText();
+        int cantidad = tabla_puestos_existentes.getRowCount();
+        boolean yaExiste = false;
+        for(int i=0; i<cantidad; i++) {
+            if (nombrePuesto.equals((String)tabla_puestos_existentes.getValueAt(i, 1))) {
+                yaExiste = true;
+                break;
+            }
+        }
+        if (yaExiste) {
+            JOptionPane.showMessageDialog(this, "Ya existe un puesto de '"+nombrePuesto+"'.", "Datos repetidos", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        // Creación del nuevo registro para el Puesto
+        int opcion = JOptionPane.YES_OPTION;
+        if (descripcionPuesto.length() == 0)
+            opcion = JOptionPane.showOptionDialog(this, "No ha especificado una Descripción para el nuevo Puesto.\n\nDesea continuar?", "Aviso", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+        if (opcion == JOptionPane.YES_OPTION) {
+            try {
+                conexion.prepareStatement("INSERT INTO Puesto(Nombre_Puesto, Descripcion) VALUES('"+nombrePuesto+"', '"+descripcionPuesto+"')").executeUpdate();
+                JOptionPane.showMessageDialog(this, "Puesto creado exitosamente", "Registro creado", JOptionPane.INFORMATION_MESSAGE);
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error al intentar crear el nuevo Puesto.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+                Logger.getLogger(CrearPuesto.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            // Ahora muestro los datos del nuevo Puesto Creado
+            listaDescripcionPuestos.add(descripcionPuesto);
+            modelPuestos.addRow(new String[]{""+(tabla_puestos_existentes.getRowCount()+1), nombrePuesto});
+            // Limpio los campos de entrada
+            nombre_puesto.setText("");
+            descripcion_puesto.setText("");
+        }
     }//GEN-LAST:event_crear_puestoActionPerformed
 
     /**
@@ -148,10 +282,15 @@ public class CrearPuesto extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton crear_puesto;
+    private javax.swing.JTextArea descripcion_puesto;
+    private javax.swing.JTextArea descripcion_puestos_existentes;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField nombre;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTextField nombre_puesto;
+    private javax.swing.JTable tabla_puestos_existentes;
     // End of variables declaration//GEN-END:variables
 }

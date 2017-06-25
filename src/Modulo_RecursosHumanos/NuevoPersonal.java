@@ -5,11 +5,19 @@
  */
 package Modulo_RecursosHumanos;
 
+import Excepciones.ExcepcionDatosIncorrectos;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,6 +26,8 @@ import javax.swing.JFrame;
 public class NuevoPersonal extends javax.swing.JFrame {
     private Connection conexion;
     private JFrame ventanaPadre;
+    private boolean hacerVisible, personaCreada, empleoCreado;
+    private int idNuevoPersonal;
     /**
      * Creates new form NuevoPersonal
      */
@@ -28,6 +38,12 @@ public class NuevoPersonal extends javax.swing.JFrame {
         initComponents();
         this.conexion = conexion;
         this.ventanaPadre = ventanaPadre;
+        hacerVisible = true;
+        personaCreada = empleoCreado = false;
+        idNuevoPersonal = -1;   // Indicador de que aún no se ha creado algún registro Personal
+        
+        persona_fecha_nacimiento.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
+        this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
     }
 
     /**
@@ -39,52 +55,114 @@ public class NuevoPersonal extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        persona_estado_civil = new javax.swing.JComboBox<>();
+        persona_otro_estado_civil = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        persona_profesion = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        nombre = new javax.swing.JTextField();
+        persona_e_mail = new javax.swing.JTextField();
+        persona_nombre = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        direccion = new javax.swing.JTextField();
-        dpi = new javax.swing.JTextField();
+        persona_idioma = new javax.swing.JTextField();
+        persona_direccion = new javax.swing.JTextField();
+        persona_dpi = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        telefono = new javax.swing.JTextField();
+        persona_telefono = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        fecha_nacimiento = new com.toedter.calendar.JDateChooser();
+        persona_fecha_nacimiento = new com.toedter.calendar.JDateChooser();
         crear_personal = new javax.swing.JButton();
-        nit = new javax.swing.JTextField();
+        persona_nit = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        sexo_masculino = new javax.swing.JRadioButton();
-        sexo_femenino = new javax.swing.JRadioButton();
-        jLabel8 = new javax.swing.JLabel();
-        estado_civil = new javax.swing.JComboBox<>();
-        otro_estado_civil = new javax.swing.JTextField();
-        jLabel9 = new javax.swing.JLabel();
-        profesion = new javax.swing.JTextField();
-        municipio = new javax.swing.JTextField();
+        persona_sexo_masculino = new javax.swing.JRadioButton();
+        persona_sexo_femenino = new javax.swing.JRadioButton();
+        etiqueta_datos_incorrectos = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        empleo_nombre = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
+        empleo_sueldo_base = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        departamento = new javax.swing.JTextField();
-        jLabel12 = new javax.swing.JLabel();
-        e_mail = new javax.swing.JTextField();
+        empleo_fecha_inicio = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        empleo_fecha_fin = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
+        asignar_puesto = new javax.swing.JButton();
+        empezar_de_nuevo = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Creación de nuevo Personal");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Información personal:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel8.setText("Estado Civil:");
+
+        persona_estado_civil.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Soltero", "Casado", "Divorciado", "Viudo", "Otro" }));
+        persona_estado_civil.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                persona_estado_civilItemStateChanged(evt);
+            }
+        });
+
+        persona_otro_estado_civil.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_otro_estado_civil.setEnabled(false);
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel9.setText("Profesión u Oficio:");
+
+        persona_profesion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel12.setText("E-mail personal:");
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel1.setText("Nombre:");
 
-        nombre.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_e_mail.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        persona_nombre.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel13.setText("Idioma:");
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel2.setText("Dirección:");
 
-        direccion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_idioma.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
-        dpi.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_direccion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        persona_dpi.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_dpi.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                persona_dpiFocusLost(evt);
+            }
+        });
+        persona_dpi.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                persona_dpiKeyTyped(evt);
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel3.setText("DPI:");
 
-        telefono.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_telefono.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_telefono.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                persona_telefonoFocusLost(evt);
+            }
+        });
+        persona_telefono.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                persona_telefonoKeyTyped(evt);
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel4.setText("Teléfono:");
@@ -92,18 +170,28 @@ public class NuevoPersonal extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Fecha de Nacimiento:");
 
-        fecha_nacimiento.setDateFormatString("dd/MM/yyyy");
-        fecha_nacimiento.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_fecha_nacimiento.setDateFormatString("dd/MM/yyyy");
+        persona_fecha_nacimiento.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         crear_personal.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        crear_personal.setText("Crear");
+        crear_personal.setText("Crear registro Personal");
         crear_personal.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 crear_personalActionPerformed(evt);
             }
         });
 
-        nit.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_nit.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_nit.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                persona_nitFocusLost(evt);
+            }
+        });
+        persona_nit.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                persona_nitKeyTyped(evt);
+            }
+        });
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel6.setText("NIT:");
@@ -111,163 +199,448 @@ public class NuevoPersonal extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel7.setText("Sexo:");
 
-        sexo_masculino.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        sexo_masculino.setSelected(true);
-        sexo_masculino.setText("Masculino");
+        persona_sexo_masculino.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_sexo_masculino.setSelected(true);
+        persona_sexo_masculino.setText("Masculino");
+        persona_sexo_masculino.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                persona_sexo_masculinoItemStateChanged(evt);
+            }
+        });
 
-        sexo_femenino.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        sexo_femenino.setText("Femenino:");
+        persona_sexo_femenino.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        persona_sexo_femenino.setText("Femenino:");
+        persona_sexo_femenino.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                persona_sexo_femeninoItemStateChanged(evt);
+            }
+        });
 
-        jLabel8.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel8.setText("Estado Civil:");
+        etiqueta_datos_incorrectos.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
 
-        estado_civil.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Soltero", "Casado", "Divorciado", "Viudo", "Otro" }));
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_otro_estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_profesion, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(persona_fecha_nacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(persona_sexo_masculino))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(177, 177, 177)
+                                .addComponent(crear_personal)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_sexo_femenino))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_idioma, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_telefono, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(persona_e_mail, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(persona_nit, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(persona_dpi, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(etiqueta_datos_incorrectos))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(persona_dpi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(persona_nit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(etiqueta_datos_incorrectos))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(persona_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(persona_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel13)
+                        .addComponent(persona_idioma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4)
+                        .addComponent(persona_telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel12)
+                        .addComponent(persona_e_mail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
+                    .addComponent(persona_fecha_nacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel7)
+                        .addComponent(persona_sexo_masculino)
+                        .addComponent(persona_sexo_femenino)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(persona_estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(persona_otro_estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(persona_profesion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(crear_personal))
+        );
 
-        otro_estado_civil.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        otro_estado_civil.setEnabled(false);
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Información laboral:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 12))); // NOI18N
 
-        jLabel9.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel9.setText("Profesión u Oficio:");
-
-        profesion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-
-        municipio.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        empleo_nombre.setEditable(false);
+        empleo_nombre.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel10.setText("Municipio:");
+        jLabel10.setText("Puesto:");
+
+        empleo_sueldo_base.setEditable(false);
+        empleo_sueldo_base.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
         jLabel11.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel11.setText("Departamento:");
+        jLabel11.setText("Sueldo Base:");
 
-        departamento.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        empleo_fecha_inicio.setEditable(false);
+        empleo_fecha_inicio.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
-        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel12.setText("E-mail personal:");
+        jLabel14.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel14.setText("Fecha Inicio:");
 
-        e_mail.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        empleo_fecha_fin.setEditable(false);
+        empleo_fecha_fin.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel15.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel15.setText("Fecha Fin:");
+
+        asignar_puesto.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        asignar_puesto.setText("Asignar Puesto");
+        asignar_puesto.setEnabled(false);
+        asignar_puesto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                asignar_puestoActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(empleo_fecha_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(empleo_fecha_fin, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(empleo_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(empleo_sueldo_base, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(146, 146, 146)
+                .addComponent(asignar_puesto)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addComponent(asignar_puesto)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(empleo_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11)
+                    .addComponent(empleo_sueldo_base, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel14)
+                    .addComponent(empleo_fecha_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel15)
+                    .addComponent(empleo_fecha_fin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        empezar_de_nuevo.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        empezar_de_nuevo.setText("Empezar de nuevo");
+        empezar_de_nuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                empezar_de_nuevoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nit, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dpi, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel10)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(municipio, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fecha_nacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sexo_masculino)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sexo_femenino))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(otro_estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(profesion, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(departamento, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(telefono, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel12)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(e_mail, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(280, 280, 280)
-                        .addComponent(crear_personal)))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(163, 163, 163)
+                .addComponent(empezar_de_nuevo)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(dpi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6)
-                    .addComponent(nit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(nombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(direccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel10)
-                    .addComponent(municipio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(departamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
-                    .addComponent(telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12)
-                    .addComponent(e_mail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel5)
-                    .addComponent(fecha_nacimiento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel7)
-                        .addComponent(sexo_masculino)
-                        .addComponent(sexo_femenino)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(otro_estado_civil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(profesion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(crear_personal)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addComponent(empezar_de_nuevo)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    /**
+     * Eventos que controlan que:
+     * - El NIT tenga el siguiente formato: 1234567-8 (7 dígitos, guión, 1 dígito).
+     * - El DPI sea de 13 dígitos (sin letras, espacios u otros caracteres).
+     * - El Teléfono sea de 8 dígitos (sin letras, espacios u otros caracteres).
+     */
+    private void persona_nitKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_persona_nitKeyTyped
+        char tecla = evt.getKeyChar();
+        int cantidad = persona_nit.getText().length();
+        if (cantidad < 6) {
+            if (!Pattern.compile("\\d").matcher(String.valueOf(tecla)).matches())
+                evt.consume();
+        } else if (cantidad == 7) {
+            if (tecla != '-')
+                evt.consume();
+        } else if (cantidad < 9) {
+            if (!Pattern.compile("\\d").matcher(String.valueOf(tecla)).matches())
+                evt.consume();
+        } else {
+            evt.consume();
+        }
+    }//GEN-LAST:event_persona_nitKeyTyped
+    private void persona_dpiKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_persona_dpiKeyTyped
+        if (!Pattern.compile("\\d").matcher(String.valueOf(evt.getKeyChar())).matches() || persona_dpi.getText().length() == 13)
+            evt.consume();
+    }//GEN-LAST:event_persona_dpiKeyTyped
+    private void persona_telefonoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_persona_telefonoKeyTyped
+        if (!Pattern.compile("\\d").matcher(String.valueOf(evt.getKeyChar())).matches() || persona_telefono.getText().length() == 8)
+            evt.consume();
+    }//GEN-LAST:event_persona_telefonoKeyTyped
+    /**
+     * Eventos que controlan que sólo se pueda seleccionar un Sexo de la Persona.
+     * También el habilitar el campo para especificar el Estado Civil no especificado por el programa
+     */
+    private void persona_sexo_masculinoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_persona_sexo_masculinoItemStateChanged
+        persona_sexo_femenino.setSelected(!persona_sexo_masculino.isSelected());
+    }//GEN-LAST:event_persona_sexo_masculinoItemStateChanged
+    private void persona_sexo_femeninoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_persona_sexo_femeninoItemStateChanged
+        persona_sexo_masculino.setSelected(!persona_sexo_femenino.isSelected());
+    }//GEN-LAST:event_persona_sexo_femeninoItemStateChanged
+    private void persona_estado_civilItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_persona_estado_civilItemStateChanged
+        persona_otro_estado_civil.setEnabled(persona_estado_civil.getSelectedIndex()==(persona_estado_civil.getItemCount()-1));
+        persona_otro_estado_civil.setText("");
+    }//GEN-LAST:event_persona_estado_civilItemStateChanged
+    /**
+     * Eventos que controlan que el NIT, DPI y Teléfono estén completos. Si alguno es incorrecto, se notifica en un JLabel.
+     */
+    private void persona_nitFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_persona_nitFocusLost
+        int longitud = persona_nit.getText().length();
+        if (longitud != 0)
+            etiqueta_datos_incorrectos.setText(longitud!=9 ? "NIT incompleto" : "");
+    }//GEN-LAST:event_persona_nitFocusLost
+    private void persona_dpiFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_persona_dpiFocusLost
+        int longitud = persona_dpi.getText().length();
+        if (longitud != 0)
+            etiqueta_datos_incorrectos.setText(longitud!=13 ? "DPI incompleto" : "");
+    }//GEN-LAST:event_persona_dpiFocusLost
+    private void persona_telefonoFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_persona_telefonoFocusLost
+        int longitud = persona_telefono.getText().length();
+        if (longitud != 0)
+            etiqueta_datos_incorrectos.setText(longitud!=8 ? "Número de Teléfono incompleto" : "");
+    }//GEN-LAST:event_persona_telefonoFocusLost
+    /**
+     * Acción que permite crear un nuevo Registro con la Información ingresada de una Persona. Previo a crear el registro,
+     * se validan si los datos son correctos.
+     * @param evt 
+     */
     private void crear_personalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crear_personalActionPerformed
-        // Código para la Creación de una nueva Persona
+        try {
+            validar_datos();
+            Calendar fecha = persona_fecha_nacimiento.getCalendar();
+            String instruccion = "INSERT INTO Personal(NIT, DPI, Nombre, FechaNacimiento, Sexo, EstadoCivil, Profesion, Idioma, Direccion, Telefono, eMail) VALUES(";
+            instruccion+= "'"+persona_nit.getText()+"', ";
+            instruccion+= "'"+persona_dpi.getText()+"', ";
+            instruccion+= "'"+persona_nombre.getText()+"', ";
+            instruccion+= "'"+fecha.get(Calendar.YEAR)+"-"+(fecha.get(Calendar.MONTH)+1)+"-"+fecha.get(Calendar.DAY_OF_MONTH)+"', ";
+            instruccion+= "'"+(persona_sexo_masculino.isSelected() ? "M" : "F")+"', ";
+            instruccion+= "'"+(persona_estado_civil.getSelectedIndex()==(persona_estado_civil.getItemCount()-1) ? persona_otro_estado_civil.getText() : (String)persona_estado_civil.getSelectedItem())+"', ";
+            instruccion+= "'"+persona_profesion.getText()+"', ";
+            instruccion+= "'"+persona_idioma.getText()+"', ";
+            instruccion+= "'"+persona_direccion.getText()+"', ";
+            instruccion+= "'"+persona_telefono.getText()+"', ";
+            instruccion+= "'"+persona_e_mail.getText()+"')";    // Por defecto, Personal.Trabajando == false (la persona aún no tiene un puesto).
+            conexion.prepareStatement(instruccion).executeUpdate();
+            personaCreada = true;   // Indicador de que ya se creó el registro en la Base de Datos
+            crear_personal.setEnabled(false);   // Inhabilito este botón para evitar duplicar el registro
+            
+            // Obtengo el ID de la nueva Persona, que servirá a la hora de asignarle un Empleo
+            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta = sentencia.executeQuery("SELECT MAX(Id) FROM Personal");
+            cConsulta.next();
+            idNuevoPersonal = cConsulta.getInt(1);
+            JOptionPane.showMessageDialog(this, "Registro creado.\nSi desea, puede asignar de una vez su puesto\no vaya a Recursos Humanos > Asignar Empleos más tarde", "Registro creado con éxito", JOptionPane.INFORMATION_MESSAGE);
+            asignar_puesto.setEnabled(true);    // Habilito el botón encargado de asignar un Empleo
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(NuevoPersonal.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "No se puede crear el nuevo Registro.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+            Logger.getLogger(NuevoPersonal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_crear_personalActionPerformed
-
+    /**
+     * Acción encargada de Asignar un Empleo a la Persona recién agregada a la Base de Datos.
+     * @param evt 
+     */
+    private void asignar_puestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_asignar_puestoActionPerformed
+        // Llamo a la ventana encargada de asignar el Empleo
+        AsignarEmpleo nuevoE = new AsignarEmpleo(this, true, conexion, idNuevoPersonal);
+        nuevoE.setVisible(nuevoE.isHacerVisible());
+        if (nuevoE.isPuestoAsignado()) {    // Se ha creado un Empleo para la Persona recién creada
+            // Muestro los datos del Puesto
+            empleo_nombre.setText(nuevoE.getNuevoPuesto());
+            empleo_sueldo_base.setText(nuevoE.getNuevoSueldo());
+            empleo_fecha_inicio.setText(nuevoE.getNuevaFechaInicio());
+            empleo_fecha_fin.setText(nuevoE.getNuevaFechaFin());
+            empleoCreado = true;    // Indicador de que ya se le asignó un Empleo a la Persona
+            asignar_puesto.setEnabled(false);   // Inhabilito este botón para evitar asignar otro Empleo
+        }
+    }//GEN-LAST:event_asignar_puestoActionPerformed
+    /**
+     * Acción que permite preparar todos los campos necesarios para crear un nuevo Registro de Persona, y asignarle un
+     * puesto si se desea. En caso de no haber realizado una de las acciones, lanza un mensaje que pide confirmación.
+     * @param evt 
+     */
+    private void empezar_de_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_empezar_de_nuevoActionPerformed
+        String mensaje = "";
+        if ((persona_nit.getText().length()!=0 || persona_dpi.getText().length()!=0 || persona_nombre.getText().length()!=0 ||
+                persona_direccion.getText().length()!=0) && !personaCreada) {   // Aún no se ha guardado el registro de la Persona
+            mensaje = "Aún no ha guardado los datos de la Persona.\nLos datos hasta ahora ingresados se perderán.\n\nDesea continuar?";
+        } else {    // Ya se guardó el registro de la Persona. Verifico si ya tiene empleo
+            if (!empleoCreado)
+                mensaje = "Aún no ha asignado un empleo a "+persona_nombre.getText()+".\nSi elige 'Sí' no se asignará un empleo.\nPuede ir a la Pantalla Principal > Recursos Humanos > Asignar Empleos\npara realizar dicha asignación más tarde.\n\nDesea continuar?";
+        }
+        // Compruebo si se puede o no borrar los campos. Si el String está vacío, ya se han guardado todos los datos
+        int opcion = (personaCreada && empleoCreado) ? JOptionPane.YES_OPTION : JOptionPane.showOptionDialog(this, mensaje, "Aviso", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+        if (opcion == JOptionPane.YES_OPTION)
+            empezar_de_nuevo();
+    }//GEN-LAST:event_empezar_de_nuevoActionPerformed
+    /**
+     * Método que valida que los datos de la Nueva Persona sean correctos; de lo contrario lanza una excepción.
+     * También verifica que la Persona aún no exista (esto es, si su DPI ya está guardado).
+     * @throws ExcepcionDatosIncorrectos 
+     */
+    private void validar_datos() throws ExcepcionDatosIncorrectos, SQLException {
+        if (persona_nit.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("El NIT no puede ser nulo");
+        if (persona_nit.getText().length() != 9)
+            throw new ExcepcionDatosIncorrectos("El NIT está incompleto");
+        if (persona_dpi.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("El DPI no puede ser nulo");
+        if (persona_dpi.getText().length() != 13)
+            throw new ExcepcionDatosIncorrectos("El DPI está incompleto");
+        // Verifico que no exista un DPI en la Base de Datos igual al de la nueva Persona
+        Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        ResultSet cConsulta = sentencia.executeQuery("SELECT DPI, Nombre, Direccion FROM Personal WHERE DPI = '"+persona_dpi.getText()+"'");
+        if (cConsulta.next())
+            throw new ExcepcionDatosIncorrectos("Ya existe una Persona con el mismo DPI.\n\nDatos:"
+                    + "\nDPI:       "+cConsulta.getString("DPI")
+                    + "\nNombre:    "+cConsulta.getString("Nombre")
+                    + "\nDirección: "+cConsulta.getString("Direccion")
+                    +"\n\nNo se podrá crear el nuevo registro.");
+        if (persona_nombre.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("El Nombre no puede ser nulo");
+        if (persona_direccion.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique la Dirección de la persona");
+        if (persona_fecha_nacimiento.getDate() == null)
+            throw new ExcepcionDatosIncorrectos("Especifique la Fecha de Nacimiento de la persona");
+        if (persona_otro_estado_civil.isEnabled() && persona_otro_estado_civil.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique el Estado Civil");
+    }
+    private void empezar_de_nuevo() {
+        // Limpia todos los campos
+        persona_nit.setText("");
+        persona_dpi.setText("");
+        persona_nombre.setText("");
+        persona_direccion.setText("");
+        persona_idioma.setText("");
+        persona_telefono.setText("");
+        persona_e_mail.setText("");
+        persona_fecha_nacimiento.setDate(null);
+        persona_estado_civil.setSelectedIndex(0);
+        persona_profesion.setText("");
+        idNuevoPersonal = -1;
+        empleo_nombre.setText("");
+        empleo_sueldo_base.setText("");
+        empleo_fecha_inicio.setText("");
+        empleo_fecha_fin.setText("");
+        personaCreada = empleoCreado = false;
+        crear_personal.setEnabled(true);    // Habilito el botón para crear el registro de una Persona
+        asignar_puesto.setEnabled(false);   // Este botón puede o no estar habilitado. Lo inhabilito de todos modos
+    }
     /**
      * @param args the command line arguments
      */
@@ -284,17 +657,11 @@ public class NuevoPersonal extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NuevoPersonal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NuevoPersonal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NuevoPersonal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(NuevoPersonal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -304,17 +671,21 @@ public class NuevoPersonal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton asignar_puesto;
     private javax.swing.JButton crear_personal;
-    private javax.swing.JTextField departamento;
-    private javax.swing.JTextField direccion;
-    private javax.swing.JTextField dpi;
-    private javax.swing.JTextField e_mail;
-    private javax.swing.JComboBox<String> estado_civil;
-    private com.toedter.calendar.JDateChooser fecha_nacimiento;
+    private javax.swing.JButton empezar_de_nuevo;
+    private javax.swing.JTextField empleo_fecha_fin;
+    private javax.swing.JTextField empleo_fecha_inicio;
+    private javax.swing.JTextField empleo_nombre;
+    private javax.swing.JTextField empleo_sueldo_base;
+    private javax.swing.JLabel etiqueta_datos_incorrectos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -323,13 +694,20 @@ public class NuevoPersonal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JTextField municipio;
-    private javax.swing.JTextField nit;
-    private javax.swing.JTextField nombre;
-    private javax.swing.JTextField otro_estado_civil;
-    private javax.swing.JTextField profesion;
-    private javax.swing.JRadioButton sexo_femenino;
-    private javax.swing.JRadioButton sexo_masculino;
-    private javax.swing.JTextField telefono;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JTextField persona_direccion;
+    private javax.swing.JTextField persona_dpi;
+    private javax.swing.JTextField persona_e_mail;
+    private javax.swing.JComboBox<String> persona_estado_civil;
+    private com.toedter.calendar.JDateChooser persona_fecha_nacimiento;
+    private javax.swing.JTextField persona_idioma;
+    private javax.swing.JTextField persona_nit;
+    private javax.swing.JTextField persona_nombre;
+    private javax.swing.JTextField persona_otro_estado_civil;
+    private javax.swing.JTextField persona_profesion;
+    private javax.swing.JRadioButton persona_sexo_femenino;
+    private javax.swing.JRadioButton persona_sexo_masculino;
+    private javax.swing.JTextField persona_telefono;
     // End of variables declaration//GEN-END:variables
 }
