@@ -96,6 +96,8 @@ public class Factura_Local extends javax.swing.JFrame {
         Tx_numero = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         Tx_serie = new javax.swing.JTextField();
+        cuenta = new javax.swing.JComboBox<>();
+        etiqueta_cuenta = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -192,7 +194,7 @@ public class Factura_Local extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -219,7 +221,6 @@ public class Factura_Local extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(Tx_cafe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -228,7 +229,7 @@ public class Factura_Local extends javax.swing.JFrame {
                     .addComponent(jLabel6)
                     .addComponent(Tx_precio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -241,7 +242,7 @@ public class Factura_Local extends javax.swing.JFrame {
                         .addContainerGap())))
         );
 
-        jButton3.setText("Crear");
+        jButton3.setText("Crear Factura");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
@@ -259,6 +260,10 @@ public class Factura_Local extends javax.swing.JFrame {
 
         jLabel9.setText("Serie: ");
 
+        cuenta.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Caja General", "Clientes", "Bancos" }));
+
+        etiqueta_cuenta.setText("Cuenta donde se cargará la Factura:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -271,33 +276,38 @@ public class Factura_Local extends javax.swing.JFrame {
                             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(jLabel3))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(Tx_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(Tx_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(19, 19, 19)
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(Tx_nit, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButton4)
+                                        .addGap(27, 27, 27)
+                                        .addComponent(jLabel8)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(Tx_numero, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel9)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(Tx_serie, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel1)
+                                            .addComponent(jLabel3))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(Tx_nombre, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(Tx_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 0, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(219, 219, 219)
-                                .addComponent(jButton3))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(43, 43, 43)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(Tx_nit, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton4)
-                                .addGap(27, 27, 27)
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Tx_numero, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(Tx_serie, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap()
+                        .addComponent(etiqueta_cuenta)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cuenta, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton3)
+                        .addGap(0, 180, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -321,10 +331,13 @@ public class Factura_Local extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(Tx_direccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton3)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(etiqueta_cuenta)
+                    .addComponent(cuenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3))
+                .addContainerGap())
         );
 
         pack();
@@ -417,7 +430,7 @@ public class Factura_Local extends javax.swing.JFrame {
                     ResultSet consultau = u.executeQuery("SELECT factura.Id FROM factura WHERE factura.Numero ="+numero+" AND factura.Serie = '"+serie+"';");
                     if(!consultau.next()){
                     Statement b = base.createStatement();
-                    ResultSet consultab = b.executeQuery("SELECT clientes.Id FROM clientes WHERE clientes.NIT = '"+Nit+"' AND clientes.Nombre = '"+Nombre+"'AND clientes.Direccion = '"+Direccion+"';");
+                    ResultSet cConsulta, consultab = b.executeQuery("SELECT clientes.Id FROM clientes WHERE clientes.NIT = '"+Nit+"' AND clientes.Nombre = '"+Nombre+"'AND clientes.Direccion = '"+Direccion+"';");
                     if(consultab.next()){
                         String cliente = consultab.getString(1);
                         String instruccion = "INSERT INTO factura(factura.Total,factura.Clientes_Id,factura.Fecha,factura.Numero,factura.Serie) VALUES(0,"+cliente+",NOW(),"+numero+",'"+serie+"');";
@@ -466,6 +479,57 @@ public class Factura_Local extends javax.swing.JFrame {
                         tabla.setRowCount(0);
                         agregados = new ArrayList<>();
                     }
+                    
+                    // CREACIÓN DE LA PARTIDA ASOCIADA A LA FACTURA DE EXPORTACIÓN CREADA
+                    String instruccion;
+                    int idCicloContable, idPartida, numeroPartida;
+                    // Obtención del ID del Ciclo Contable de la Fecha actual
+                    cConsulta = u.executeQuery("SELECT CicloContable.Id FROM CicloContable "
+                            + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
+                            + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id "
+                            + "WHERE Anio.Anio = YEAR(NOW()) AND Mes.Id = MONTH(NOW())");
+                    cConsulta.next();
+                    idCicloContable = cConsulta.getInt(1);
+                    // Obtención del Número de Partida que tendrá la nueva partida asociada a la Factura Especial
+                    cConsulta = u.executeQuery("SELECT COUNT(Numero), MAX(Numero) FROM Partida WHERE CicloContable_Id = "+idCicloContable);
+                    cConsulta.next();
+                    numeroPartida = (cConsulta.getInt(1)==0) ? 1 : cConsulta.getInt(2)+1;
+                    // Creación del Registro de la Partida asociada a la Factura Especial creada
+                    instruccion = "INSERT INTO Partida(CicloContable_Id, Numero, Fecha, Descripción) VALUES(";
+                    instruccion+= idCicloContable+", "+numeroPartida+", NOW(), ";
+                    instruccion+= "'Extensión de Factura No. "+Tx_numero.getText()+", con entrada a "+(String)cuenta.getSelectedItem()+"')";
+                    base.prepareStatement(instruccion).executeUpdate();  // Creación del Registro de la Partida
+                    // Obtención del ID de la Partida recién creada
+                    cConsulta = u.executeQuery("SELECT LAST_INSERT_ID()");    // Obtiene el ID del último registro 'insertado'
+                    cConsulta.next();
+                    idPartida = cConsulta.getInt(1);
+
+                    // Obtención del ID de las Cuentas implicadas en la Partida
+                    int idCuentaEntrada, idVentas, idIVAPorPagar;
+                    cConsulta = u.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = '"+(String)cuenta.getSelectedItem()+"'");
+                    cConsulta.next();
+                    idCuentaEntrada = cConsulta.getInt(1);   // Obtención del ID de la Cuenta donde se cargará el Pago
+                    cConsulta = u.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'Ventas'");
+                    cConsulta.next();
+                    idVentas = cConsulta.getInt(1);   // Obtención del ID de la Cuenta 'Ventas'
+                    cConsulta = u.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'IVA por Pagar'");
+                    cConsulta.next();
+                    idIVAPorPagar = cConsulta.getInt(1);   // Obtención del ID de la Cuenta 'IVA por Pagar'
+
+                    // Creación de los Detalles de la Partida asociada a la Factura de Exportación creada
+                    float cuentaEntrada, ventas, IVAPorPagar, totalFactura;
+                    cuentaEntrada = totalFactura = Float.parseFloat(Tx_total.getText());
+                    IVAPorPagar = (totalFactura/1.12f)*0.12f;
+                    ventas = totalFactura - IVAPorPagar;
+                    // Creación de los Detalles de la Partida
+                    instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idCuentaEntrada+", "+String.format("%.2f", cuentaEntrada)+", 1)";
+                    base.prepareStatement(instruccion).executeUpdate(); // Cuenta Clientes
+                    instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idVentas+", "+String.format("%.2f", ventas)+", 0)";
+                    base.prepareStatement(instruccion).executeUpdate(); // Cuenta Ventas
+                    instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idIVAPorPagar+", "+String.format("%.2f", IVAPorPagar)+", 0)";
+                    base.prepareStatement(instruccion).executeUpdate(); // Cuenta IVA por Pagar
+                    // HASTA AQUÍ SE GARANTIZA LA CREACIÓN DE LA PARTIDA PARA LA FACTURA DE EXPORTACIÓN REALIZADA
+                    
                     Tx_nit.setText("");
                     Tx_nombre.setText("");
                     Tx_direccion.setText("");
@@ -537,6 +601,8 @@ public class Factura_Local extends javax.swing.JFrame {
     private javax.swing.JTextField Tx_precio;
     private javax.swing.JTextField Tx_serie;
     private javax.swing.JTextField Tx_total;
+    private javax.swing.JComboBox<String> cuenta;
+    private javax.swing.JLabel etiqueta_cuenta;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;

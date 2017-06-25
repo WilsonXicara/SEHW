@@ -118,6 +118,7 @@ public class AsignarEmpleo extends javax.swing.JDialog {
         descripcion_puesto = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Asignación de Empleo");
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Fecha Inicio:");
@@ -132,6 +133,11 @@ public class AsignarEmpleo extends javax.swing.JDialog {
         jLabel12.setText("Fecha Fin:");
 
         sueldo_base.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        sueldo_base.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                sueldo_baseFocusLost(evt);
+            }
+        });
         sueldo_base.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 sueldo_baseKeyTyped(evt);
@@ -139,7 +145,7 @@ public class AsignarEmpleo extends javax.swing.JDialog {
         });
 
         jLabel13.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel13.setText("Sueldo base:");
+        jLabel13.setText("Sueldo base: Q.");
 
         asignar_empleo.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         asignar_empleo.setText("Asignar Puesto");
@@ -297,8 +303,14 @@ public class AsignarEmpleo extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void sueldo_baseKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sueldo_baseKeyTyped
-        if (!Pattern.compile("[.\\d]").matcher(String.valueOf(evt.getKeyChar())).matches())
-        evt.consume();
+        char tecla = evt.getKeyChar();
+        if (tecla == '.') {
+            if (sueldo_base.getText().contains("."))
+                evt.consume();  // No se permite ingresar un valor como NN..N (con dos puntos consecutivos)
+            else if (sueldo_base.getText().length() == 0)
+                sueldo_base.setText("0");   // Si la primera tecla es '.' se convierte en '0.'
+        } else if (!Pattern.compile("\\d").matcher(String.valueOf(evt.getKeyChar())).matches())
+            evt.consume();
     }//GEN-LAST:event_sueldo_baseKeyTyped
     /**
      * Acción que permite asignar una Persona a un Empleo, siempre que este no tenga uno ya asignado o nunca ha tenido uno.
@@ -342,6 +354,21 @@ public class AsignarEmpleo extends javax.swing.JDialog {
         int index = puestos.getSelectedIndex();
         descripcion_puesto.setText((index==-1) ? "" : listaDescripcionPuestos.get(index));
     }//GEN-LAST:event_puestosItemStateChanged
+    /**
+     * Evento que controla cuando se pierde el Focus.
+     * Si el texto es '' se convierte a '0.00'
+     * Si el texto es 'nnn.' se convierte a 'nnn.00'
+     * Si el texto es 'nnn.abc' se convierte a 'nnn.ad' (donde ad es la aproximación de abc)
+     * @param evt 
+     */
+    private void sueldo_baseFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_sueldo_baseFocusLost
+        if (sueldo_base.getText().length() == 0)
+            sueldo_base.setText("0.00");
+        else if (sueldo_base.getText().indexOf(".") == (sueldo_base.getText().length()-1))
+            sueldo_base.setText(sueldo_base.getText()+"00");
+        else
+            sueldo_base.setText(String.format("%.2f", Float.parseFloat(sueldo_base.getText())));
+    }//GEN-LAST:event_sueldo_baseFocusLost
 
      private void validar_datos() throws ExcepcionDatosIncorrectos {
         if (puestos.getSelectedIndex() == -1)
@@ -350,6 +377,13 @@ public class AsignarEmpleo extends javax.swing.JDialog {
             throw new ExcepcionDatosIncorrectos("Especifique la Fecha en la que Inicia a trabajar "+persona_nombre.getText());
         if (fecha_fin_puesto.getDate() == null)
             throw new ExcepcionDatosIncorrectos("Especifique la Fecha en la que Termina de trabajar "+persona_nombre.getText());
+        // Evalúo de que la Fecha Fin no sea antes que la Fecha Inicio
+        Calendar fechaI = fecha_inicio_puesto.getCalendar(), fechaF = fecha_fin_puesto.getCalendar();
+        if (fechaF.before(fechaI))
+            throw new ExcepcionDatosIncorrectos("La Fecha de Fin no puede ser antes de la Fecha de Inicio");
+        // Los eventos relacionados a sueldo_base hacen que dicho valor tenga un formato correcto. Sólo verifico que no sea nulo
+        if (sueldo_base.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique el Sueldo Base");
         
     }
     public boolean isHacerVisible() { return hacerVisible; }

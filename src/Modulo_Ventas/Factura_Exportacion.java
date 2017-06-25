@@ -250,11 +250,62 @@ public class Factura_Exportacion extends javax.swing.JFrame {
                         if(!consultab.next()){
                             String Instruccion = "INSERT INTO factura_exportacion(Serie,Numero,Precio,Cantidad,Fecha,Clientes_exportacion_Id,Cafe_Id) VALUES('"+Serie+"','"+Numero+"',"+Precio+","+Cantidad+",NOW(),"+Id_Cliente.get(posicion_cliente)+","+Id_cafe.get(posicion_cafe)+");";
                             PreparedStatement a = base.prepareStatement(Instruccion);
+                            ResultSet cConsulta;
                             a.executeUpdate();
                             Tx_serie.setText("");
                             Tx_numero.setText("");
                             Tx_precio.setText("");
                             Tx_quintales.setText("");
+                            
+                            // CREACIÓN DE LA PARTIDA ASOCIADA A LA FACTURA DE EXPORTACIÓN CREADA
+                            String instruccion;
+                            int idCicloContable, idPartida, numeroPartida;
+                            // Obtención del ID del Ciclo Contable de la Fecha actual
+                            cConsulta = a.executeQuery("SELECT CicloContable.Id FROM CicloContable "
+                                    + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
+                                    + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id "
+                                    + "WHERE Anio.Anio = YEAR(NOW()) AND Mes.Id = MONTH(NOW())");
+                            cConsulta.next();
+                            idCicloContable = cConsulta.getInt(1);
+                            // Obtención del Número de Partida que tendrá la nueva partida asociada a la Factura Especial
+                            cConsulta = a.executeQuery("SELECT COUNT(Numero), MAX(Numero) FROM Partida WHERE CicloContable_Id = "+idCicloContable);
+                            cConsulta.next();
+                            numeroPartida = (cConsulta.getInt(1)==0) ? 1 : cConsulta.getInt(2)+1;
+                            // Creación del Registro de la Partida asociada a la Factura Especial creada
+                            instruccion = "INSERT INTO Partida(CicloContable_Id, Numero, Fecha, Descripción) VALUES(";
+                            instruccion+= idCicloContable+", "+numeroPartida+", NOW(), ";
+                            instruccion+= "'Extensión de la Factura de Exportación No. "+Tx_numero.getText()+", con fecha de hoy')";
+                            base.prepareStatement(instruccion).executeUpdate();  // Creación del Registro de la Partida
+                            // Obtención del ID de la Partida recién creada
+                            cConsulta = a.executeQuery("SELECT LAST_INSERT_ID()");    // Obtiene el ID del último registro 'insertado'
+                            cConsulta.next();
+                            idPartida = cConsulta.getInt(1);
+                            
+                            // Obtención del ID de las Cuentas implicadas en la Partida
+                            int idClientes, idVentas, idIVAPorPagar;
+                            cConsulta = a.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'Clientes'");
+                            cConsulta.next();
+                            idClientes = cConsulta.getInt(1);   // Obtención del ID de la Cuenta 'Clientes'
+                            cConsulta = a.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'Ventas'");
+                            cConsulta.next();
+                            idVentas = cConsulta.getInt(1);   // Obtención del ID de la Cuenta 'Ventas'
+                            cConsulta = a.executeQuery("SELECT Id FROM Cuentas WHERE Nombre = 'IVA por Pagar'");
+                            cConsulta.next();
+                            idIVAPorPagar = cConsulta.getInt(1);   // Obtención del ID de la Cuenta 'IVA por Pagar'
+                            
+                            // Creación de los Detalles de la Partida asociada a la Factura de Exportación creada
+                            float clientes, ventas, IVAPorPagar, totalFactura;
+                            clientes = totalFactura = Float.parseFloat(Tx_precio.getText()) + Float.parseFloat(Tx_quintales.getText());
+                            IVAPorPagar = (totalFactura/1.12f)*0.12f;
+                            ventas = totalFactura - IVAPorPagar;
+                            // Creación de los Detalles de la Partida
+                            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idClientes+", "+String.format("%.2f", clientes)+", 1)";
+                            base.prepareStatement(instruccion).executeUpdate(); // Cuenta Clientes
+                            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idVentas+", "+String.format("%.2f", ventas)+", 0)";
+                            base.prepareStatement(instruccion).executeUpdate(); // Cuenta Ventas
+                            instruccion = "INSERT INTO Detalle_Partida(Partida_Id, Cuentas_Id, Valor, Debe) VALUES("+idPartida+", "+idIVAPorPagar+", "+String.format("%.2f", IVAPorPagar)+", 0)";
+                            base.prepareStatement(instruccion).executeUpdate(); // Cuenta IVA por Pagar
+                            // HASTA AQUÍ SE GARANTIZA LA CREACIÓN DE LA PARTIDA PARA LA FACTURA DE EXPORTACIÓN REALIZADA
                         }else{
                             JOptionPane.showMessageDialog(this, "Ya existe una factura con este numero de serie \n y numero de factura", "ERROR", JOptionPane.ERROR_MESSAGE, null);
                         }

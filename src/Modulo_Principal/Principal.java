@@ -32,12 +32,14 @@ import java.awt.Image;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -56,10 +58,20 @@ public class Principal extends javax.swing.JFrame {
      */
     public Principal() {
         initComponents();
+        // Obtengo la conexión con la Base de Datos
         ConectarConBD obtenerConexion = new ConectarConBD();
         conexion = obtenerConexion.getConexion();
         if (conexion == null)
             System.exit(0);
+        // Ahora determino si en la Base de Datos ya existe el Año en curso
+        try {
+            conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY).executeQuery("CALL nuevoAnio()");
+            // El Procedimiento dentro de la BD se encarga de crear el Año y los Ciclosm, en caso de no existir el primero
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error en procedimiento dentro de la Base de Datos.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+            System.exit(0); // En caso de ocurrir algún error, no se mostrará el programa
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         ImageIcon fot = new javax.swing.ImageIcon(getClass().getResource("/Imagenes/logo.png"));
         Icon icono = new ImageIcon(fot.getImage().getScaledInstance(jLabel1.getWidth(), jLabel1.getHeight(), Image.SCALE_DEFAULT));
@@ -130,7 +142,7 @@ public class Principal extends javax.swing.JFrame {
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/imagen.png"))); // NOI18N
-
+      
         jButton1.setText("Planilla");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -144,7 +156,6 @@ public class Principal extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-
         menu_crear.setText("Crear");
 
         item_crear_cosecha.setText("Cosecha");
@@ -358,6 +369,7 @@ public class Principal extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -461,7 +473,7 @@ public class Principal extends javax.swing.JFrame {
 
     private void item_ver_generar_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_ver_generar_planillaActionPerformed
         VerPlanilla planilla = new VerPlanilla(conexion, this);
-        planilla.setVisible(true);
+        planilla.setVisible(planilla.getHacerVisible());
     }//GEN-LAST:event_item_ver_generar_planillaActionPerformed
 
     private void item_asigacion_empleosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_asigacion_empleosActionPerformed

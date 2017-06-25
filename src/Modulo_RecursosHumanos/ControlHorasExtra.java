@@ -21,14 +21,18 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author pc
+ * En esta ventana se agregan un registro de Horas Extra de un Empleo, asociados a un Ciclo Contable seleccionado. Se puede
+ * crear el registro sí y sólo si el Ciclo Contable está activo (tiene un atributo que lo indica).
+ * Al iniciar la Ventana Principal, se llama a un Procedimiento que evalúa si ya existe un Año; de no existir lo crea, junto
+ * a 12 Ciclos Contables (una para cada Mes-Año) por lo que por lo menos hay 12 Ciclos inicialmente.
+ * @author Wilson Xicará
  */
 public class ControlHorasExtra extends javax.swing.JFrame {
     private Connection conexion;
     private JFrame ventanaPadre;
-    private boolean hacerVisible, datosCargados;
-    private ArrayList<Integer> listaIDPuestos, listaIDCiclos, listaIDEmpleo;
+    private boolean hacerVisible;
+    private ArrayList<Integer> listaIDPuestos, listaIDEmpleo;
+    private int idCicloSelec, idMesSelec, idAnioSelec;
     private Date fechaActual;
     private DefaultTableModel modelEmpleos, modelHorasExtas;
     /**
@@ -41,55 +45,51 @@ public class ControlHorasExtra extends javax.swing.JFrame {
         initComponents();
         this.conexion = conexion;
         this.ventanaPadre = ventanaPadre;
-        datosCargados = !(hacerVisible = true); // Inicialmente no se han cargado los datos, y se intentará mostrar esta ventana
-        listaIDPuestos = new ArrayList<>();
-        listaIDCiclos = new ArrayList<>();
+        hacerVisible = true; // Inicialmente se intentará mostrar esta ventana
         
         // Obtengo los datos necesarios desde la Base de Datos
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ResultSet cConsulta;
-            // Obtención del listado de Puestos
+            // Obtención del listado de Puestos (para filtrar Empleos por el Puesto)
             cConsulta = sentencia.executeQuery("SELECT Id, Nombre_Puesto FROM Puesto");
+            listaIDPuestos = new ArrayList<>();
             while (cConsulta.next()) {
                 listaIDPuestos.add(cConsulta.getInt("Id"));
                 puesto.addItem(cConsulta.getString("Nombre_Puesto"));
-            } puesto.addItem("TODOS");  // En caso de que se quieran mostrar a todos los trabajadores activos
-            // Obtención del listado de todos los Ciclos Contables existentes (compuestos de mes y año)
-            cConsulta = sentencia.executeQuery("SELECT CicloContable.Id idCiclo, CONCAT(Anio.Anio, ' - ', Mes.Mes) Ciclo FROM CicloContable "
-                    + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
-                    + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id");
-            while (cConsulta.next()) {
-                listaIDCiclos.add(cConsulta.getInt("idCiclo"));
-                ciclo_contable.addItem(cConsulta.getString("Ciclo"));
-            }
-            datosCargados = true;
-            // En caso de no existir algún Puesto o algún Ciclo contable, no se mostrará esta ventana
-            if (listaIDPuestos.isEmpty() || listaIDCiclos.isEmpty()) {
+            } puesto.addItem("TODOS");  // En caso de que se quieran mostrar a todos los Empleos activos
+            // Obtención del listado de Años
+            cConsulta = sentencia.executeQuery("SELECT Anio FROM Anio");
+            while (cConsulta.next())
+                ciclo_anio.addItem(cConsulta.getString(1));
+            // Obtención del listado de Meses
+            cConsulta = sentencia.executeQuery("SELECT Mes FROM Mes");
+            while (cConsulta.next())
+                ciclo_mes.addItem(cConsulta.getString(1));
+            // En caso de no existir algún Puesto, no se mostrará esta ventana
+            if (listaIDPuestos.isEmpty()) {
                 hacerVisible = false;
                 String mensaje = "No se puede mostrar el Control de Empleados pues falta lo siguiente:";
                 mensaje+= (listaIDPuestos.isEmpty()) ? "\n -> Puestos laborales" : "";
-                mensaje+= (listaIDCiclos.isEmpty()) ? "\n -> Ciclos contables" : "";
                 mensaje+= "\n\nConsulte con el Administrador para proporcionar dichos datos\na la Base de Datos e inténtelo nuevamente.";
                 JOptionPane.showMessageDialog(this, mensaje, "Datos faltantes", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             // Obtención la Fecha de hoy (desde la Base de Datos)
-            cConsulta = sentencia.executeQuery("SELECT YEAR(NOW()), MONTH(NOW()), DAY(NOW())");
+            cConsulta = sentencia.executeQuery("SELECT NOW()");
             cConsulta.next();
-            fechaActual = new Date(cConsulta.getInt(1)-1900, cConsulta.getInt(2)-1, cConsulta.getInt(3));
-            fecha_horas_extras.setDate(fechaActual);
+            fecha_horas_extras.setDate(fechaActual = cConsulta.getDate(1));
+            fecha_horas_extras.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
             cConsulta.close();
             // Otras configuraciones importantes
             listaIDEmpleo = new ArrayList<>();
             modelEmpleos = (DefaultTableModel)tabla_empleos.getModel();
             modelHorasExtas = (DefaultTableModel)tabla_horas_extras.getModel();
-            fecha_horas_extras.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         } catch (SQLException ex) {
             hacerVisible = false;
             JOptionPane.showMessageDialog(this, "No se puede obtener alguno de los listados desde la Base de Datos.\n\n"+ex.getMessage(), "Error al intentar obtener datos", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -103,8 +103,6 @@ public class ControlHorasExtra extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        ciclo_contable = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         puesto = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -123,19 +121,16 @@ public class ControlHorasExtra extends javax.swing.JFrame {
         agregar_nueva_hora_extra = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
         horas_extra = new javax.swing.JTextField();
+        etiqueta_aviso = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        ciclo_anio = new javax.swing.JComboBox<>();
+        jLabel4 = new javax.swing.JLabel();
+        ciclo_mes = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Control de Horas Extra");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Registrar horas extras"));
-
-        ciclo_contable.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                ciclo_contableItemStateChanged(evt);
-            }
-        });
-
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jLabel2.setText("Ciclo contable:");
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Puesto:");
@@ -164,6 +159,8 @@ public class ControlHorasExtra extends javax.swing.JFrame {
             }
         });
         tabla_empleos.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabla_empleos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tabla_empleos.getTableHeader().setReorderingAllowed(false);
         tabla_empleos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tabla_empleosMousePressed(evt);
@@ -201,6 +198,7 @@ public class ControlHorasExtra extends javax.swing.JFrame {
             }
         });
         tabla_horas_extras.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabla_horas_extras.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(tabla_horas_extras);
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -244,6 +242,7 @@ public class ControlHorasExtra extends javax.swing.JFrame {
         });
 
         agregar_nueva_hora_extra.setText("Agregar Horas extras");
+        agregar_nueva_hora_extra.setEnabled(false);
         agregar_nueva_hora_extra.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 agregar_nueva_hora_extraActionPerformed(evt);
@@ -256,75 +255,100 @@ public class ControlHorasExtra extends javax.swing.JFrame {
 
         horas_extra.setEditable(false);
 
+        etiqueta_aviso.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel2.setText("Año:");
+
+        ciclo_anio.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ciclo_anioItemStateChanged(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel4.setText("Mes:");
+
+        ciclo_mes.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ciclo_mesItemStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(jLabel8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(ciclo_contable, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(fecha_horas_extras, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(hora_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(agregar_nueva_hora_extra)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(hora_fin)
+                                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(horas_extra)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(etiqueta_tabla_horas_extra)))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(etiqueta_tabla_trabajadores)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(85, 85, 85)
+                        .addComponent(etiqueta_aviso))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(puesto, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(49, 49, 49)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ciclo_anio, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ciclo_mes, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(mostrar_trabajadores)))
                 .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(etiqueta_tabla_trabajadores))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(etiqueta_tabla_horas_extra)
-                        .addContainerGap())
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 393, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fecha_horas_extras, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
-                                    .addComponent(hora_inicio))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(agregar_nueva_hora_extra)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(hora_fin, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
-                                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(horas_extra, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
-                                            .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
-                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(ciclo_contable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(ciclo_anio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4)
+                        .addComponent(ciclo_mes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mostrar_trabajadores))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel5)
+                        .addComponent(puesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(4, 4, 4)
+                .addComponent(etiqueta_aviso)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(puesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(mostrar_trabajadores))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(etiqueta_tabla_trabajadores)
-                    .addComponent(etiqueta_tabla_horas_extra))
+                .addComponent(etiqueta_tabla_trabajadores)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(etiqueta_tabla_horas_extra)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel8)
@@ -341,8 +365,7 @@ public class ControlHorasExtra extends javax.swing.JFrame {
                             .addComponent(hora_fin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(horas_extra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addComponent(agregar_nueva_hora_extra)
-                        .addGap(0, 50, Short.MAX_VALUE))
+                        .addComponent(agregar_nueva_hora_extra))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -372,36 +395,62 @@ public class ControlHorasExtra extends javax.swing.JFrame {
      * @param evt 
      */
     private void mostrar_trabajadoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrar_trabajadoresActionPerformed
-        // Borro los registro de la búsqueda anterior
-        modelEmpleos.setRowCount(0);
-        listaIDEmpleo.clear();
-        int indexPuesto = puesto.getSelectedIndex();    // Este JComboBox nunca tendrá .getSelectedIndex() == -1
-        String instruccion = "SELECT Empleo.Id idEmpleo, Personal.Nombre, Puesto.Nombre_Puesto, Empleo.FechaInicio, Empleo.FechaFin FROM Empleo "
-                + "INNER JOIN Personal ON Empleo.Personal_Id = Personal.Id "
-                + "INNER JOIN Puesto ON Empleo.Puesto_Id = Puesto.Id "
-                + "WHERE Empleo.Vigente = 1";
-        if (indexPuesto != (puesto.getItemCount()-1))
-            instruccion+= " AND Puesto.Id = "+listaIDPuestos.get(indexPuesto);
-        // Obtengo el listado de todos los trabajadores activos que concuerdan con la búsqueda
-        try {
-            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-            ResultSet cConsulta = sentencia.executeQuery(instruccion);
-            int contador = 0;
-            while(cConsulta.next()) {
-                listaIDEmpleo.add(cConsulta.getInt("idEmpleo"));
-                modelEmpleos.addRow(new String[]{
-                    ""+(++contador),
-                    cConsulta.getString("Nombre"),
-                    cConsulta.getString("Nombre_Puesto"),
-                    cConsulta.getString("FechaInicio"),
-                    cConsulta.getString("FechaFin")
-                });
-            }   // Hasta aquí se garantiza la obtención de todos los trabajadores activos
-            etiqueta_tabla_trabajadores.setText("Trabajadores vigentes: "+contador);
-            limpiar_horas_extras();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al intentar obtener los registros desde la Base de Datos.\n\nDescripción:\n"+ex, "Error de conexión", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+        if ("Mostrar trabajadores".equals(mostrar_trabajadores.getText())) {
+            mostrar_trabajadores.setText("Nueva búsqueda");
+            ciclo_anio.setEnabled(false);   // Inhabilito estos JComboBox para evitar que sean cambiados (pues alterarían los datos que se guardarán)
+            ciclo_mes.setEnabled(false);
+            puesto.setEnabled(false);
+            // Borro los registro de la búsqueda anterior
+            modelEmpleos.setRowCount(0);
+            listaIDEmpleo.clear();
+            int indexPuesto = puesto.getSelectedIndex();    // Este JComboBox nunca tendrá .getSelectedIndex() == -1
+            String instruccion = "SELECT Empleo.Id idEmpleo, Personal.Nombre, Puesto.Nombre_Puesto, Empleo.FechaInicio, Empleo.FechaFin FROM Empleo "
+                    + "INNER JOIN Personal ON Empleo.Personal_Id = Personal.Id "
+                    + "INNER JOIN Puesto ON Empleo.Puesto_Id = Puesto.Id "
+                    + "WHERE Empleo.Vigente = 1";
+            if (indexPuesto != (puesto.getItemCount()-1))
+                instruccion+= " AND Puesto.Id = "+listaIDPuestos.get(indexPuesto);
+            // Obtengo el listado de todos los trabajadores activos que concuerdan con la búsqueda
+            try {
+                Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+                ResultSet cConsulta;
+                // Obtengo el ID del Ciclo Contable, Año y Mes seleccionados
+                cConsulta = sentencia.executeQuery("SELECT CicloContable.Id, Anio.Id, Mes.Id FROM CicloContable "
+                    + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
+                    + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id "
+                    + "WHERE Anio.Anio = "+(String)ciclo_anio.getSelectedItem()+" AND Mes.Mes = '"+(String)ciclo_mes.getSelectedItem()+"'");
+                cConsulta.next();
+                idCicloSelec = cConsulta.getInt(1);
+                idAnioSelec = cConsulta.getInt(2);
+                idMesSelec = cConsulta.getInt(3);
+                // Obtengo el listado de todos los Empleos que concuerdan con la Búsqueda
+                cConsulta = sentencia.executeQuery(instruccion);
+                int contador = 0;
+                while(cConsulta.next()) {
+                    listaIDEmpleo.add(cConsulta.getInt("idEmpleo"));
+                    modelEmpleos.addRow(new String[]{
+                        ""+(++contador),
+                        cConsulta.getString("Nombre"),
+                        cConsulta.getString("Nombre_Puesto"),
+                        cConsulta.getString("FechaInicio"),
+                        cConsulta.getString("FechaFin")
+                    });
+                }   // Hasta aquí se garantiza la obtención de todos los trabajadores activos
+                etiqueta_tabla_trabajadores.setText("Trabajadores vigentes: "+contador);
+                limpiar_horas_extras();
+                agregar_nueva_hora_extra.setEnabled(false); // Este botón se habilitará hasta seleccionar otro registro
+                hora_inicio.setEditable(false);
+                hora_fin.setEditable(false);
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error al intentar obtener los registros desde la Base de Datos.\n\nDescripción:\n"+ex, "Error de conexión", JOptionPane.ERROR_MESSAGE);
+//                Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            mostrar_trabajadores.setText("Mostrar trabajadores");
+            ciclo_anio.setEnabled(true);    // Habilito estos JComboBox para permitir hacer una nueva búsqueda
+            ciclo_mes.setEnabled(true);
+            puesto.setEnabled(true);
+            agregar_nueva_hora_extra.setEnabled(false); // Este botón se habilitará hasta seleccionar un Empleo
         }
     }//GEN-LAST:event_mostrar_trabajadoresActionPerformed
     /**
@@ -418,10 +467,9 @@ public class ControlHorasExtra extends javax.swing.JFrame {
         // Al hacer una selección (que no necesariamente es igual al anterior), se obtienen nuevos datos
         modelHorasExtas.setRowCount(0);
         int indexEmpleo = tabla_empleos.getSelectedRow();
-        int indexCiclo = ciclo_contable.getSelectedIndex();
-        String instruccion = "SELECT Fecha, HoraInicio, HoraFin FROM HorasExtras "
-                + "WHERE CicloContable_Id = "+listaIDCiclos.get(indexCiclo)+" AND Empleo_Id = "+listaIDEmpleo.get(indexEmpleo);
-        // Obtengo el listado de todas las Horas Extras en el Ciclo Contable y del Trabajador seleccionado
+        String instruccion = "SELECT Fecha, HoraInicio, HoraFin, HorasExtra FROM HorasExtras "
+                + "WHERE Empleo_Id = "+listaIDEmpleo.get(indexEmpleo)+" AND CicloContable_Id = "+idCicloSelec;
+        // Obtengo el listado de todas las Horas Extras en el Ciclo Contable y del Empleo seleccionado
         try {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ResultSet cConsulta = sentencia.executeQuery(instruccion);
@@ -432,20 +480,20 @@ public class ControlHorasExtra extends javax.swing.JFrame {
                     cConsulta.getString("Fecha"),
                     cConsulta.getString("HoraInicio"),
                     cConsulta.getString("HoraFin"),
-                    ""+obtener_horas_extras(cConsulta.getString("HoraInicio"), cConsulta.getString("HoraFin"), 8)
+                    cConsulta.getString("HorasExtra")
                 });
             }   // Hasta aquí se garantiza la obtención de todos las Horas Extras en el Ciclo del Trabajador seleccionado
             etiqueta_tabla_horas_extra.setText("Horas extra del trabajador No. "+(indexEmpleo+1)+": "+contador);
+            if (!agregar_nueva_hora_extra.isEnabled()) {
+                agregar_nueva_hora_extra.setEnabled(true);
+                hora_inicio.setEditable(true);
+                hora_fin.setEditable(true);
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error al intentar obtener el listado de Horas Extra.\n\nDescripción:\n"+ex.getMessage(), "Error en conexión", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_tabla_empleosMousePressed
-
-    private void ciclo_contableItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ciclo_contableItemStateChanged
-        if (datosCargados)
-            limpiar_horas_extras();
-    }//GEN-LAST:event_ciclo_contableItemStateChanged
     /**
      * Evento utilizado para controlar que la hora ingresada tenga el formato HH:MM:SS (dos dígitos por cada uno)
      * @param evt 
@@ -453,33 +501,61 @@ public class ControlHorasExtra extends javax.swing.JFrame {
     private void hora_inicioKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_hora_inicioKeyTyped
         char tecla = evt.getKeyChar();
         int cantidad = hora_inicio.getText().length();
-        /*
-        
-        
-        if (cantidad < 6) {
-            if (!Pattern.compile("\\d").matcher(String.valueOf(tecla)).matches())
-                evt.consume();
-        } else if (cantidad == 7) {
-            if (tecla != '-')
-                evt.consume();
-        } else if (cantidad < 9) {
-            if (!Pattern.compile("\\d").matcher(String.valueOf(tecla)).matches())
-                evt.consume();
-        } else {
-            evt.consume();
-        }*/
+        if (!Pattern.compile("[:\\d]").matcher(String.valueOf(evt.getKeyChar())).matches())
+            evt.consume();  // Si la tecla no es [0-9] o ':' se rechaza
+        else {
+            
+        }
     }//GEN-LAST:event_hora_inicioKeyTyped
     
     private void hora_finKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_hora_finKeyTyped
-        // TODO add your handling code here:
+        char tecla = evt.getKeyChar();
+        int cantidad = hora_fin.getText().length();
+        if (!Pattern.compile("[:\\d]").matcher(String.valueOf(evt.getKeyChar())).matches())
+            evt.consume();  // Si la tecla no es [0-9] o ':' se rechaza
+        else {
+            
+        }
     }//GEN-LAST:event_hora_finKeyTyped
-
+    /**
+     * Eventos que controlan cuando los campos de ingreso de hora se pierden.
+     * - Si hay un número entre [0,86399] se obtiene su equvalente en HH:MM:SS
+     * @param evt 
+     */
     private void hora_inicioFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_hora_inicioFocusLost
-        // Evento para cuando hora_inicio pierde el Focus
+        if (hora_inicio.getText().length() == 0)
+            hora_inicio.setText("00:00:00");
+        else if (!Pattern.compile("\\d{2}:\\d{2}:\\d{2}").matcher(String.valueOf(hora_inicio.getText())).matches()) {
+            int cantidad = Integer.parseInt(hora_inicio.getText());
+            if (cantidad < 86400) {
+                int hora = cantidad/3600; cantidad-= hora*3600;
+                int min = cantidad/60;    cantidad-= min*60;
+                hora_inicio.setText(""+(hora<10?"0":"")+hora+":"+(min<10?"0":"")+min+":"+(cantidad<10?"0":"")+cantidad);
+            } else {
+                hora_inicio.setText("23:59:59");
+            }
+        }
+        if (hora_fin.getText().length() != 0) {
+            horas_extra.setText(String.format("%.2f", obtener_horas_extras(hora_inicio.getText(), hora_fin.getText(), 8)));
+        }
     }//GEN-LAST:event_hora_inicioFocusLost
 
     private void hora_finFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_hora_finFocusLost
-        // TODO add your handling code here:
+        if (hora_fin.getText().length() == 0)
+            hora_fin.setText("00:00:00");
+        else if (!Pattern.compile("\\d{2}:\\d{2}:\\d{2}").matcher(String.valueOf(hora_fin.getText())).matches()) {
+            int cantidad = Integer.parseInt(hora_fin.getText());
+            if (cantidad < 86400) {
+                int hora = cantidad/3600; cantidad-= hora*3600;
+                int min = cantidad/60;    cantidad-= min*60;
+                hora_fin.setText(""+(hora<10?"0":"")+hora+":"+(min<10?"0":"")+min+":"+(cantidad<10?"0":"")+cantidad);
+            } else {
+                hora_fin.setText("23:59:59");
+            }
+        }
+        if (hora_inicio.getText().length() != 0) {
+            horas_extra.setText(String.format("%.2f", obtener_horas_extras(hora_inicio.getText(), hora_fin.getText(), 8)));
+        }
     }//GEN-LAST:event_hora_finFocusLost
     /**
      * Acción que permite asignar una nueva hora extra al Trabajador en el Ciclo Contable seleccionados
@@ -489,19 +565,21 @@ public class ControlHorasExtra extends javax.swing.JFrame {
         try {
             validar_datos_horas_extra();    // Verifico que los datos sean correctos
             Calendar fecha = fecha_horas_extras.getCalendar();
-            float horasExtra = obtener_horas_extras(hora_inicio.getText(), hora_fin.getText(), 8);
+            // Los eventos en hora_inicio y hora_fin se encargan de que horas_extra tenga el formato correcto
+            float horasExtra = Float.parseFloat(horas_extra.getText());
             String mensaje = (horasExtra == 0.0f ? "Al parecer el horario no genera Horas Extra.\nSe guardará el registro, aunque es irrelevante." :
                     "El horario ingresado genera "+horasExtra+" horas extra.") + "\n\nDesea continuar?";
-            // Puede que no se registra horas extra o sólo se pide confirmación
+            // Puede que no se registra horas extra o sólo se pide confirmación (se informa en ambos casos)
             int opcion = JOptionPane.showOptionDialog(this, mensaje, "Aviso", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
             if (opcion == JOptionPane.YES_OPTION) {
                 String instruccion = "INSERT INTO HorasExtras(CicloContable_Id, Empleo_Id, Fecha, HoraInicio, HoraFin, HorasExtra) VALUES(";
-                instruccion+= listaIDCiclos.get(ciclo_contable.getSelectedIndex())+", ";
+                instruccion+= idCicloSelec+", ";
                 instruccion+= listaIDEmpleo.get(tabla_empleos.getSelectedRow())+", ";
                 instruccion+= "'"+fecha.get(Calendar.YEAR)+"-"+(fecha.get(Calendar.MONTH)+1)+"-"+fecha.get(Calendar.DAY_OF_MONTH)+"', ";
                 instruccion+= "'"+hora_inicio.getText()+"', '"+hora_fin.getText()+"', ";
-                instruccion+= horasExtra+")";
+                instruccion+= horas_extra.getText()+")";
                 conexion.prepareStatement(instruccion).executeUpdate();
+                // En caso de que el pago ya exista, hay un Trigger encargado de actualizar la cantidad de Horas Extra y el IGSS de dicho Empleo
 
                 // Agrego los nuevos datos a la tabla de horas extra
                 modelHorasExtas.addRow(new String[]{
@@ -509,7 +587,7 @@ public class ControlHorasExtra extends javax.swing.JFrame {
                     ""+fecha.get(Calendar.YEAR)+"-"+(fecha.get(Calendar.MONTH)+1)+"-"+fecha.get(Calendar.DAY_OF_MONTH),
                     hora_inicio.getText(),
                     hora_fin.getText(),
-                    ""+horasExtra
+                    horas_extra.getText()
                 });
                 etiqueta_tabla_horas_extra.setText("Horas extra del trabajador No. "+(tabla_empleos.getSelectedRow()+1)+": "+tabla_horas_extras.getRowCount());
                 // Limpio los campos donde se ingresó la hora extra agregada
@@ -520,12 +598,23 @@ public class ControlHorasExtra extends javax.swing.JFrame {
             }
         } catch (ExcepcionDatosIncorrectos ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en datos", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error al intentar guardar el registro.\n\nDescripción:\n"+ex.getMessage(), "Error en conexión", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ControlHorasExtra.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_agregar_nueva_hora_extraActionPerformed
+
+    private void ciclo_anioItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ciclo_anioItemStateChanged
+        /*int index = ciclo_anio.getSelectedIndex();
+        if (index != -1)
+        etiqueta_aviso.setText(listaCicloActivo.get(index) ? "" : "El Ciclo Contable seleccionado ya no está Activo. No podrá editar los Préstamos");
+        */
+    }//GEN-LAST:event_ciclo_anioItemStateChanged
+
+    private void ciclo_mesItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ciclo_mesItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ciclo_mesItemStateChanged
 
     private void validar_datos_horas_extra() throws ExcepcionDatosIncorrectos {
         if (fecha_horas_extras.getDate() == null)
@@ -618,48 +707,12 @@ public class ControlHorasExtra extends javax.swing.JFrame {
         
 //        System.out.println("Hola = "+((JComboBox)mes.getComboBox()).getSelectedItem());*/
     }
-    
-    private class AnioContable {
-        private int id, anio;
-        private ArrayList<MesContable> meses;
-        public AnioContable() {
-            id = anio = 0;
-            meses = new ArrayList<>();
-        }
-        public AnioContable(int id, int anio) {
-            this.id = id;
-            this.anio = anio;
-            meses = new ArrayList<>();
-        }
-        public void setID(int id) { this.id = id; }
-        public void setAnio(int anio) { this.anio = anio; }
-        public void addMes(MesContable mes) { meses.add(mes); }
-        public void addMeses(ArrayList<MesContable> meses) { this.meses = meses; }
-        public int getID() { return id; }
-        public int getAnio() { return anio; }
-        public MesContable getMes(int index) { return meses.get(index); }
-        public ArrayList<MesContable> getMeses() { return meses; }
-    }
-    private class MesContable {
-        private int id;
-        private String mes;
-        public MesContable() {
-            id = 0;
-            mes = "";
-        }
-        public MesContable(int id, String mes) {
-            this.id = id;
-            this.mes = mes;
-        }
-        public void setID(int id) { this.id = id; }
-        public void setMes(String mes) { this.mes = mes; }
-        public int getID() { return id; }
-        public String getMes() { return mes; }
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton agregar_nueva_hora_extra;
-    private javax.swing.JComboBox<String> ciclo_contable;
+    private javax.swing.JComboBox<String> ciclo_anio;
+    private javax.swing.JComboBox<String> ciclo_mes;
+    private javax.swing.JLabel etiqueta_aviso;
     private javax.swing.JLabel etiqueta_tabla_horas_extra;
     private javax.swing.JLabel etiqueta_tabla_trabajadores;
     private com.toedter.calendar.JDateChooser fecha_horas_extras;
@@ -669,6 +722,7 @@ public class ControlHorasExtra extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
