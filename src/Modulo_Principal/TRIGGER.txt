@@ -14,6 +14,191 @@ BEGIN
 	UPDATE Recibo SET SacosNylon = SacosNylon - NEW.CantidadSacosNylon, SacosYuta = SacosYuta - NEW.CantidadSacosYuta, Saldo = Saldo - NEW.PesoUtilizado WHERE Codigo = NEW.Recibo_Codigo;
 END //
 
+/* TRIGGER encargado de actualizar el Total de Horas Extra y el IGSS del Pago asociado a la Hora Extra agregada */
+DROP TRIGGER IF EXISTS agregarHorasExtra //
+CREATE TRIGGER agregarHorasExtra AFTER INSERT ON HorasExtras FOR EACH ROW
+BEGIN
+	DECLARE vCantidadPago INT;
+	DECLARE vCantidadHorasExtra FLOAT;
+	DECLARE vPrecioHoraExtra FLOAT;
+	DECLARE vIGSS FLOAT;
+	DECLARE vSueldoBase FLOAT;
+	SELECT COUNT(CantidadHorasExtras), PrecioHoraExtra, CantidadHorasExtras, IGSS INTO vCantidadPago, vPrecioHoraExtra, vCantidadHorasExtra, vIGSS FROM Pago
+		WHERE Empleo_Id = NEW.Empleo_Id AND CicloContable_Id = NEW.CicloContable_Id;
+	-- Si vCantidadPago = 0 es porque aún no se ha creado el pago, y vCantidadHorasExtra y vIGSS son NULL
+	IF (vCantidadPago != 0) THEN
+		-- Obtengo el Sueldo Base del Empleo
+		SELECT SueldoBase INTO vSueldoBase FROM Empleo WHERE Id = NEW.Empleo_Id;
+		SET vIGSS = (vSueldoBase + vPrecioHoraExtra*(vCantidadHorasExtra + NEW.HorasExtra))*0.0483;
+		UPDATE Pago SET CantidadHorasExtras = vCantidadHorasExtra + NEW.HorasExtra, IGSS = vIGSS
+			WHERE Empleo_Id = NEW.Empleo_Id AND CicloContable_Id = NEW.CicloContable_Id;
+	END IF;
+	-- Hasta aquí se garantiza la actualización del Total de Horas Extra y el valor de IGSS, al crear nuevas horas extra
+END //
+
+/* TRIGGER encargado de actualizar el Saldo de la Cuenta asociada a un Detalle_Partida creada */
+DROP TRIGGER IF EXISTS nuevoDetallePartida //
+CREATE TRIGGER nuevoDetallePartida AFTER INSERT ON Detalle_Partida FOR EACH ROW
+BEGIN
+	DECLARE vSaldoDetalle FLOAT;
+	DECLARE vEsActivo INT;
+	DECLARE vEsPasivo INT;
+	DECLARE vEsPerdida INT;
+	DECLARE vEsGanancia INT;
+	-- Verifico si la Cuenta es Activo, Pasivo, Pérdida o Ganancia
+	SELECT Activo, Pasivo, Perdida, Ganancia INTO vEsActivo, vEsPasivo, vEsPerdida, vEsGanancia FROM Cuentas WHERE Id = NEW.Cuentas_Id;
+	-- Si es Activo o Pérdida, su saldo: Aumenta con un Detalle con Debe; Disminuye con un Detalle con Haber
+	-- Si es Pasivo o Ganancia, su saldo: Aumenta con un Detalle con Haber; Disminuye con un Detalle con Debe
+	SET vSaldoDetalle = NEW.Valor;
+	IF (NEW.Debe = 1) THEN	-- Si el Saldo del Detalle está en el lado del Debe
+		IF (vEsPasivo = 1 OR vEsGanancia = 1) THEN	-- El Saldo del Detalle se restará al Saldo de la Cuenta
+			SET vSaldoDetalle = vSaldoDetalle*-1;
+		END IF;
+		-- Si el Saldo del Detalle se sumara al Saldo de la Cuenta, no es necesario indicarlo (ya es positivo)
+	ELSE	-- Si el Saldo del Detalle está en el lado del Haber
+		IF (vEsActivo = 1 OR vEsPerdida = 1) THEN	-- El Saldo del Detalle se restará al Saldo de la Cuenta
+			SET vSaldoDetalle = vSaldoDetalle*-1;
+		END IF;
+		-- Si el Saldo del Detalle se sumara al Saldo de la Cuenta, no es necesario indicarlo (ya es positivo)
+	END IF;
+	-- Hasta aquí, vSaldoDetalle se sumará o restará a la Cuenta asociada en el Detalle de la Partida
+	
+	UPDATE Cuentas SET Saldo = Saldo + vSaldoDetalle WHERE Id = NEW.Cuentas_Id;
+	-- Hasta aquí se garantiza la actualización del Saldo en la Cuenta asociada al Detalle de la Partida creada
+END //
+
+/* PROCEDIMIENTO encargado de Crear un nuevo Año y 12 Ciclos Contables en la BD, en caso de que el año aún no exista */
+DROP PROCEDURE IF EXISTS nuevoAnio //
+CREATE PROCEDURE nuevoAnio ()
+BEGIN
+	DECLARE vYaExiste INT;
+	DECLARE vIdNuevoAnio INT;
+	SELECT COUNT(Anio) INTO vYaExiste FROM Anio WHERE Anio = YEAR(NOW());
+	IF (vYaExiste = 0) THEN	-- El Año aún no ha sido creado. Se creará, junto a 12 Ciclos Contables
+		INSERT INTO Anio(Anio) VALUES(YEAR(NOW()));	-- Creación del Registro del Año
+		-- Creación de los 12 registros de los Ciclos Contables (uno por cada Mes-NuevoAño)
+		SET vIdNuevoAnio = LAST_INSERT_ID();	-- Función que devuelve el ID del último registro insertado
+		INSERT INTO CicloContable(Anio_Id, Mes_Id) VALUES
+			(vIdNuevoAnio, 1),
+			(vIdNuevoAnio, 2),
+			(vIdNuevoAnio, 3),
+			(vIdNuevoAnio, 4),
+			(vIdNuevoAnio, 5),
+			(vIdNuevoAnio, 6),
+			(vIdNuevoAnio, 7),
+			(vIdNuevoAnio, 8),
+			(vIdNuevoAnio, 9),
+			(vIdNuevoAnio, 10),
+			(vIdNuevoAnio, 11),
+			(vIdNuevoAnio, 12);	-- Por defecto, todos los Ciclos están no Activos
+	END IF;
+	-- Hasta aquí se garantiza la creación de un Nuevo Año, en caso de aún no existir en la Base de Datos
+END //
+
+
+/* TRIGGER encargado de actualizar el Saldo de la Cuenta asociada a un Detalle_Partida que se elimina */
+DROP TRIGGER IF EXISTS eliminarDetallePartida //
+CREATE TRIGGER eliminarDetallePartida AFTER DELETE ON Detalle_Partida FOR EACH ROW
+BEGIN
+	DECLARE vSaldoDetalle FLOAT;
+	DECLARE vEsActivo INT;
+	DECLARE vEsPasivo INT;
+	DECLARE vEsPerdida INT;
+	DECLARE vEsGanancia INT;
+	-- Verifico si la Cuenta es Activo, Pasivo, Pérdida o Ganancia
+	SELECT Activo, Pasivo, Perdida, Ganancia INTO vEsActivo, vEsPasivo, vEsPerdida, vEsGanancia FROM Cuentas WHERE Id = OLD.Cuentas_Id;
+	-- Si es Activo o Pérdida, su saldo: Aumentó con un Detalle con Debe; Disminuyó con un Detalle con Haber
+	-- Si es Pasivo o Ganancia, su saldo: Aumentó con un Detalle con Haber; Disminuyó con un Detalle con Debe
+	SET vSaldoDetalle = OLD.Valor;
+	IF (OLD.Debe = 1) THEN	-- Si el Saldo del Detalle está en el lado del Debe
+		IF (vEsActivo = 1 OR vEsPerdida = 1) THEN	-- El Saldo del Detalle eliminado se SUMARÁ al Saldo de la Cuenta
+			SET vSaldoDetalle = vSaldoDetalle*-1;
+		END IF;
+		-- Si el Saldo del Detalle se sumó al Saldo de la Cuenta, ahora lo resto
+	ELSE	-- Si el Saldo del Detalle está en el lado del Haber
+		IF (vEsPasivo = 1 OR vEsGanancia = 1) THEN	-- El Saldo del Detalle eliminado se SUMARÁ al Saldo de la Cuenta
+			SET vSaldoDetalle = vSaldoDetalle*-1;
+		END IF;
+		-- Si el Saldo del Detalle se sumó al Saldo de la Cuenta, ahora lo resto
+	END IF;
+	-- Hasta aquí, vSaldoDetalle se sumará o restará a la Cuenta asociada en el Detalle de la Partida eliminada
+	
+	UPDATE Cuentas SET Saldo = Saldo + vSaldoDetalle WHERE Id = OLD.Cuentas_Id;
+	-- Hasta aquí se garantiza la actualización del Saldo en la Cuenta asociada al Detalle de la Partida eliminada
+END //
+
+/* PROCEDIMIENTO encargado de generar el ESTADO DE RESULTADOS, y almacena los datos importantes en la tabla Otros */
+DROP PROCEDURE IF EXISTS generarEstadoDeResultados //
+CREATE PROCEDURE generarEstadoDeResultados (_inventarioInicial FLOAT, _inventarioFinal FLOAT)
+BEGIN
+	-- Variables que obtendrás su valor desde la tabla Cuentas, en la Base de Datos
+	DECLARE vVentas FLOAT;
+	DECLARE vDevolucionesVentas FLOAT;
+	DECLARE vCompras FLOAT;
+	DECLARE vGastosCompras FLOAT;
+	DECLARE vDevolucionesCompras FLOAT;
+	-- Variables resultantes, que su valor será almacenado en la tabla Otros
+	DECLARE vfComprasBrutas FLOAT;
+	DECLARE vfComprasNetas FLOAT;
+	DECLARE vfCostoVentas FLOAT;
+	DECLARE vfMercaderiaDisponible FLOAT;
+	DECLARE vfMargenBruto FLOAT;
+	DECLARE vfUtilidadNeta FLOAT;
+	-- Variables de uso múltiple (toman diferente valor)
+	DECLARE vGastosTotales FLOAT;
+	DECLARE vOtraVariable FLOAT;
+	
+	-- Cálculo de los INGRESOS
+	SELECT Saldo INTO vVentas FROM Cuentas WHERE Nombre = 'Ventas';
+	SELECT Saldo INTO vDevolucionesVentas FROM Cuentas WHERE Nombre = 'Devoluciones y rebajas sobre ventas';
+	UPDATE Otros SET Saldo = vVentas - vDevolucionesVentas WHERE Nombre = 'Ventas netas';
+	-- Cálculo del COSTO DE VENTAS
+	SELECT Saldo INTO vCompras FROM Cuentas WHERE Nombre = 'Compras';
+	SELECT Saldo INTO vGastosCompras FROM Cuentas WHERE Nombre = 'Gastos sobre compras';
+	SET vfComprasBrutas = vCompras + vGastosCompras;
+	UPDATE Otros SET Saldo = vfComprasBrutas WHERE Nombre = 'Compras brutas';	-- Cálculo de las Compras Brutas
+	SELECT Saldo INTO vDevolucionesCompras FROM Cuentas WHERE Nombre = 'Devoluciones y rebajas sobre compras';
+	SET vfComprasNetas = vfComprasBrutas - vDevolucionesCompras;
+	UPDATE Otros SET Saldo = vfComprasNetas WHERE Nombre = 'Compras netas';	-- Cálculo de las Compras Netas
+	SET vfMercaderiaDisponible = vfComprasNetas + _inventarioInicial;
+	UPDATE Otros SET Saldo = vfMercaderiaDisponible WHERE Nombre = 'Mercadería disponible';	-- Cálculo de la Mercadería disponible
+	SET vfCostoVentas = vfMercaderiaDisponible - _inventarioFinal;
+	UPDATE Otros SET Saldo = vfCostoVentas WHERE Nombre = 'Costo de ventas';	-- Cálculo del Costo de Ventas
+	SET vfMargenBruto = vVentas - vDevolucionesVentas - vfCostoVentas;
+	UPDATE Otros SET Saldo = vfMargenBruto WHERE Nombre = 'Margen bruto';	-- Cálculo del Margen bruto en Costo de Ventas
+	-- Cálculo de OTROS INGRESOS DE OPERACIÓN
+	-- Aquí, al Margen Bruto le sumo los Créditos Recuperados y al resultado se le restan todos los Gastos
+	SELECT Saldo INTO vOtraVariable FROM Cuentas WHERE Nombre = 'Créditos Recuperados';
+	SET vfMargenBruto = vfMargenBruto + vOtraVariable;	-- Al Margen Bruto le sumo los Créditos Recuperados y al resultado se le restan todos los Gastos
+	
+	-- Cálculo de GASTOS DE OPERACIÓN
+	-- Obtención de todos los gastos (pérdidas), a excepción de Compras y Devoluciones y rebajas sobre compras
+	SELECT SUM(Saldo) INTO vGastosTotales FROM Cuentas WHERE Perdida = 1 AND (Nombre != 'Devoluciones y rebajas sobre ventas' AND Nombre != 'Compras' AND Nombre != 'Gastos sobre compras' AND Nombre != 'Inventario inicial de mercadería' AND Nombre != 'Intereses Gasto');
+	UPDATE Otros SET Saldo = vfMargenBruto - vGastosTotales WHERE Nombre = 'Resultado de Operacion';	-- Cálculo del Resultado de Operación
+	SET vfUtilidadNeta = vfMargenBruto - vGastosTotales;	-- Si hay ingresos, se suman aquí
+	-- Obtención de los Intereses Gasto, que se resta a Resultado de Operacion
+	SELECT Saldo INTO vOtraVariable FROM Cuentas WHERE Nombre = 'Intereses Gasto';
+	SET vfUtilidadNeta = vfUtilidadNeta - vOtraVariable;	-- Al Resultado de Operación, le resto los Intereses Gasto
+	-- Obtención de los Alquileres percibidos, que se le suma a la Utilidad Neta antes de calcular la Ganancia antes del ISR
+	SELECT Saldo INTO vOtraVariable FROM Cuentas WHERE Nombre = 'Alquileres percibidos';
+	SET vfUtilidadNeta = vfUtilidadNeta + vOtraVariable;	-- A la Utilidad Bruta (después de Resultado de Operación - Intereses Gasto), le sumo los Alquileres percibidos (una ganancia)
+	
+	-- Al Resultado de Operación, se suman los ingresos y se obtiene la Ganancia antes del ISR
+	-- Cálculo de OTROS INGRESOS
+	-- Almacenamiento de la Ganancia antes del ISR
+	UPDATE Otros SET Saldo = vfUtilidadNeta WHERE Nombre = 'Ganancia antes del ISR';	-- Cálculo de la Ganancia antes de ISR
+	SET vOtraVariable = vfUtilidadNeta*0.25;	-- Cálculo del ISR: 25% sobre la Uitilidad Neta
+	SET vfUtilidadNeta = vfUtilidadNeta-vOtraVariable;	-- Resto el ISR a la Utilidad Neta: es la Ganancia antes de la Reserva Legal
+	-- Hasta acá, a la Utilidad Neta ya se le quitó el ISR
+	-- Almacenamiento de la Ganancia antes de la Reserva Legal
+	UPDATE Otros SET Saldo = vfUtilidadNeta WHERE Nombre = 'Ganancia antes de la Reserva Legal';	-- Almacenamiento de la Ganancia antes de la Reserva
+	-- A la utilidad neta sin ISR le resto la Reserva Legal
+	SET vfUtilidadNeta = vfUtilidadNeta - vfUtilidadNeta*0.05;	-- Esto es la Gananacia Neta
+	UPDATE Otros SET Saldo = vfUtilidadNeta WHERE Nombre = 'Ganancia neta';	-- Almacenamiento de la Ganancia Neta (después de ISR y Reserva Legal)
+	
+	-- HASTA ACÁ SE GARANTIZA LA CREACIÓN DEL ESTADO DE RESULTADOS, Y SU ALMACENAMIENTO EN LA TABLA OTROS
+END //
+
 DELIMITER ;
 
 ****    Cambios en el Modelo Relacional    ****

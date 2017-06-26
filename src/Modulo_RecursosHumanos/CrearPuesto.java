@@ -44,12 +44,16 @@ public class CrearPuesto extends javax.swing.JFrame {
             Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ResultSet cConsulta;
             // Obtención del listado de Descripciones de los Puestos existentes
-            cConsulta = sentencia.executeQuery("SELECT Nombre_Puesto, Descripcion FROM Puesto");
+            cConsulta = sentencia.executeQuery("SELECT Nombre_Puesto, Descripcion, esAdministracion, esProduccion, esVentas FROM Puesto");
             listaDescripcionPuestos = new ArrayList<>();
             modelPuestos = (DefaultTableModel)tabla_puestos_existentes.getModel();
             while (cConsulta.next()) {
                 listaDescripcionPuestos.add(cConsulta.getString("Descripcion"));
-                modelPuestos.addRow(new String[]{""+(tabla_puestos_existentes.getRowCount()+1), cConsulta.getString("Nombre_Puesto")});
+                String tipo = "No especificado";
+                if (cConsulta.getBoolean("esAdministracion")) tipo = "Administración";
+                else if (cConsulta.getBoolean("esProduccion")) tipo = "Producción";
+                else if (cConsulta.getBoolean("esVentas")) tipo = "Ventas";
+                modelPuestos.addRow(new String[]{""+(tabla_puestos_existentes.getRowCount()+1), cConsulta.getString("Nombre_Puesto"), tipo});
             }
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         } catch (SQLException ex) {
@@ -79,6 +83,10 @@ public class CrearPuesto extends javax.swing.JFrame {
         tabla_puestos_existentes = new javax.swing.JTable();
         jScrollPane3 = new javax.swing.JScrollPane();
         descripcion_puestos_existentes = new javax.swing.JTextArea();
+        jLabel7 = new javax.swing.JLabel();
+        check_puesto_administracion = new javax.swing.JRadioButton();
+        check_puesto_produccion = new javax.swing.JRadioButton();
+        check_puesto_ventas = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Crear nuevo Puesto");
@@ -110,14 +118,14 @@ public class CrearPuesto extends javax.swing.JFrame {
 
             },
             new String [] {
-                "No.", "Puesto"
+                "No.", "Puesto", "Sector"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -129,6 +137,7 @@ public class CrearPuesto extends javax.swing.JFrame {
             }
         });
         tabla_puestos_existentes.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tabla_puestos_existentes.getTableHeader().setReorderingAllowed(false);
         tabla_puestos_existentes.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tabla_puestos_existentesMousePressed(evt);
@@ -140,7 +149,7 @@ public class CrearPuesto extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -151,6 +160,49 @@ public class CrearPuesto extends javax.swing.JFrame {
         descripcion_puestos_existentes.setRows(5);
         jScrollPane3.setViewportView(descripcion_puestos_existentes);
 
+        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel7.setText("Sector:");
+
+        check_puesto_administracion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        check_puesto_administracion.setText("Adminsitración");
+        check_puesto_administracion.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                check_puesto_administracionItemStateChanged(evt);
+            }
+        });
+        check_puesto_administracion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                check_puesto_administracionActionPerformed(evt);
+            }
+        });
+
+        check_puesto_produccion.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        check_puesto_produccion.setSelected(true);
+        check_puesto_produccion.setText("Produccion");
+        check_puesto_produccion.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                check_puesto_produccionItemStateChanged(evt);
+            }
+        });
+        check_puesto_produccion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                check_puesto_produccionActionPerformed(evt);
+            }
+        });
+
+        check_puesto_ventas.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        check_puesto_ventas.setText("Ventas");
+        check_puesto_ventas.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                check_puesto_ventasItemStateChanged(evt);
+            }
+        });
+        check_puesto_ventas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                check_puesto_ventasActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -159,20 +211,31 @@ public class CrearPuesto extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel6)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nombre_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(crear_puesto))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(nombre_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(crear_puesto))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(check_puesto_administracion)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(check_puesto_produccion)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(check_puesto_ventas)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -181,20 +244,27 @@ public class CrearPuesto extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(nombre_puesto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(check_puesto_administracion)
+                    .addComponent(check_puesto_produccion)
+                    .addComponent(check_puesto_ventas))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(44, 44, 44)
+                        .addGap(38, 38, 38)
                         .addComponent(crear_puesto)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(8, 8, 8)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 115, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         pack();
@@ -230,20 +300,73 @@ public class CrearPuesto extends javax.swing.JFrame {
             opcion = JOptionPane.showOptionDialog(this, "No ha especificado una Descripción para el nuevo Puesto.\n\nDesea continuar?", "Aviso", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
         if (opcion == JOptionPane.YES_OPTION) {
             try {
-                conexion.prepareStatement("INSERT INTO Puesto(Nombre_Puesto, Descripcion) VALUES('"+nombrePuesto+"', '"+descripcionPuesto+"')").executeUpdate();
+                // Obtengo el tipo de Puesto
+                String sector = "";
+                if (check_puesto_administracion.isSelected()) sector = "esAdministracion";
+                if (check_puesto_produccion.isSelected()) sector = "esProduccion";
+                else if (check_puesto_ventas.isSelected()) sector = "esVentas";
+                conexion.prepareStatement("INSERT INTO Puesto(Nombre_Puesto, Descripcion, "+sector+") VALUES('"+nombrePuesto+"', '"+descripcionPuesto+"', 1)").executeUpdate();
+                // Ahora muestro los datos del nuevo Puesto Creado
+                listaDescripcionPuestos.add(descripcionPuesto);
+                if (check_puesto_administracion.isSelected()) sector = "Administración";
+                else if (check_puesto_produccion.isSelected()) sector = "Producción";
+                else if (check_puesto_ventas.isSelected()) sector = "Ventas";
+                modelPuestos.addRow(new String[]{""+(tabla_puestos_existentes.getRowCount()+1), nombrePuesto, sector});
+                // Limpio los campos de entrada
+                nombre_puesto.setText("");
+                descripcion_puesto.setText("");
                 JOptionPane.showMessageDialog(this, "Puesto creado exitosamente", "Registro creado", JOptionPane.INFORMATION_MESSAGE);
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error al intentar crear el nuevo Puesto.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(CrearPuesto.class.getName()).log(Level.SEVERE, null, ex);
             }
-            // Ahora muestro los datos del nuevo Puesto Creado
-            listaDescripcionPuestos.add(descripcionPuesto);
-            modelPuestos.addRow(new String[]{""+(tabla_puestos_existentes.getRowCount()+1), nombrePuesto});
-            // Limpio los campos de entrada
-            nombre_puesto.setText("");
-            descripcion_puesto.setText("");
         }
     }//GEN-LAST:event_crear_puestoActionPerformed
+
+    private void check_puesto_administracionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_puesto_administracionActionPerformed
+        System.out.println("ADMIN: El chek INICIA en "+check_puesto_administracion.isSelected());
+        if (!check_puesto_administracion.isSelected()) {
+//            System.out.println("Se seleccionará ADMINISTRACIÓN");
+            check_puesto_administracion.setSelected(true);
+            check_puesto_produccion.setSelected(false);
+            check_puesto_ventas.setSelected(false);
+        }
+        System.out.println("ADMIN: El chek TERMINA en "+check_puesto_administracion.isSelected());
+    }//GEN-LAST:event_check_puesto_administracionActionPerformed
+
+    private void check_puesto_produccionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_puesto_produccionActionPerformed
+        System.out.println("PROD: El chek INICIA en "+check_puesto_produccion.isSelected());
+        if (!check_puesto_produccion.isSelected()) {
+//            System.out.println("Se seleccionará PRODUCCIÓN");
+            check_puesto_administracion.setSelected(false);
+            check_puesto_produccion.setSelected(true);
+            check_puesto_ventas.setSelected(false);
+        }
+        System.out.println("PROD: El chek TERMINA en "+check_puesto_produccion.isSelected());
+    }//GEN-LAST:event_check_puesto_produccionActionPerformed
+
+    private void check_puesto_ventasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_check_puesto_ventasActionPerformed
+        System.out.println("VNT: El chek INICIA en "+check_puesto_ventas.isSelected());
+        if (!check_puesto_ventas.isSelected()) {
+//            System.out.println("Se seleccionará VENTAS");
+            check_puesto_administracion.setSelected(false);
+            check_puesto_produccion.setSelected(false);
+            check_puesto_ventas.setSelected(true);
+        }
+        System.out.println("VNT: El chek TERMINA en "+check_puesto_ventas.isSelected());
+    }//GEN-LAST:event_check_puesto_ventasActionPerformed
+
+    private void check_puesto_administracionItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_check_puesto_administracionItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_check_puesto_administracionItemStateChanged
+
+    private void check_puesto_produccionItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_check_puesto_produccionItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_check_puesto_produccionItemStateChanged
+
+    private void check_puesto_ventasItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_check_puesto_ventasItemStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_check_puesto_ventasItemStateChanged
 
     /**
      * @param args the command line arguments
@@ -281,11 +404,15 @@ public class CrearPuesto extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton check_puesto_administracion;
+    private javax.swing.JRadioButton check_puesto_produccion;
+    private javax.swing.JRadioButton check_puesto_ventas;
     private javax.swing.JButton crear_puesto;
     private javax.swing.JTextArea descripcion_puesto;
     private javax.swing.JTextArea descripcion_puestos_existentes;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
