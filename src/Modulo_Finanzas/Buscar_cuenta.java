@@ -163,6 +163,7 @@ public class Buscar_cuenta extends javax.swing.JDialog {
     private void cadenaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cadenaKeyTyped
         filtro.setRowFilter(RowFilter.regexFilter(cadena.getText(), 1));
         cuentas.setRowSorter(filtro);
+        
     }//GEN-LAST:event_cadenaKeyTyped
 
     private void jScrollPane1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jScrollPane1MouseClicked
@@ -171,9 +172,10 @@ public class Buscar_cuenta extends javax.swing.JDialog {
 
     private void cuentasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cuentasMouseClicked
         if(evt.getClickCount() == 2){
+        int posicion= filtro.convertRowIndexToModel(cuentas.getSelectedRow());
         DefaultTableModel tabla = (DefaultTableModel) cuentas.getModel();
-        Id = (String)tabla.getValueAt(cuentas.getSelectedRow(), 0);
-        nombre = (String)tabla.getValueAt(cuentas.getSelectedRow(), 1);
+        Id = (String)tabla.getValueAt(posicion, 0);
+        nombre = (String)tabla.getValueAt(posicion, 1);
         this.dispose();
         }
     }//GEN-LAST:event_cuentasMouseClicked
