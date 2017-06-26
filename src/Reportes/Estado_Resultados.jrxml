@@ -11,7 +11,7 @@
 	<parameter name="Fecha_Inicio" class="java.lang.String"/>
 	<parameter name="Fecha_Final" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT otros.Id,otros.Nombre,otros.Saldo FROM otros]]>
+		<![CDATA[SELECT otros.Id,otros.Nombre,otros.Saldo FROM otros WHERE otros.saldo!= 0]]>
 	</queryString>
 	<field name="Id" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>

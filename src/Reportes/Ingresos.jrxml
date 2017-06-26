@@ -4,7 +4,7 @@
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<queryString>
-		<![CDATA[SELECT cuentas.Id,cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Id = 45 OR cuentas.Id = 49;]]>
+		<![CDATA[SELECT cuentas.Id,cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Id = 45 OR cuentas.Id = 49 AND cuentas.Saldo !=0;]]>
 	</queryString>
 	<field name="Id" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>

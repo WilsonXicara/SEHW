@@ -17,7 +17,9 @@ import Modulo_Compras.CrearFacturaEspecial;
 import Modulo_Finanzas.Buscar_cuenta;
 import Modulo_Finanzas.CrearCheque;
 import Modulo_Finanzas.CrearCuentaBancaria;
+import Modulo_Finanzas.Crear_Cuentas;
 import Modulo_Finanzas.Estado_Resultados;
+import Modulo_Finanzas.Libro_diario;
 import Modulo_Finanzas.Polizas;
 import Modulo_Inventario.Cotizacion;
 import Modulo_Produccion.CrearOrdenTrilla;
@@ -25,7 +27,6 @@ import Modulo_Produccion.CrearRecibo;
 import Modulo_RecursosHumanos.ControlHorasExtra;
 import Modulo_RecursosHumanos.CrearPuesto;
 import Modulo_RecursosHumanos.NuevoPersonal;
-import Modulo_RecursosHumanos.VerPlanilla;
 import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Frame;
@@ -41,7 +42,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -64,15 +64,6 @@ public class Principal extends javax.swing.JFrame {
         conexion = obtenerConexion.getConexion();
         if (conexion == null)
             System.exit(0);
-        // Ahora determino si en la Base de Datos ya existe el Año en curso
-        try {
-            conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY).executeQuery("CALL nuevoAnio()");
-            // El Procedimiento dentro de la BD se encarga de crear el Año y los Ciclosm, en caso de no existir el primero
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error en procedimiento dentro de la Base de Datos.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
-            System.exit(0); // En caso de ocurrir algún error, no se mostrará el programa
-            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
-        }
         this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         ImageIcon fot = new javax.swing.ImageIcon(getClass().getResource("/Imagenes/logo.png"));
         Icon icono = new ImageIcon(fot.getImage().getScaledInstance(jLabel1.getWidth(), jLabel1.getHeight(), Image.SCALE_DEFAULT));
@@ -123,10 +114,12 @@ public class Principal extends javax.swing.JFrame {
         item_ver_generar_planilla = new javax.swing.JMenuItem();
         jMenu4 = new javax.swing.JMenu();
         jMenuItem13 = new javax.swing.JMenuItem();
+        jMenuItem17 = new javax.swing.JMenuItem();
         jMenuItem14 = new javax.swing.JMenuItem();
         jMenuItem15 = new javax.swing.JMenuItem();
         item_crear_cuenta_bancaria = new javax.swing.JMenuItem();
         item_crear_cheque = new javax.swing.JMenuItem();
+        jMenuItem16 = new javax.swing.JMenuItem();
 
         jMenuItem4.setText("jMenuItem4");
 
@@ -316,6 +309,14 @@ public class Principal extends javax.swing.JFrame {
         });
         jMenu4.add(jMenuItem13);
 
+        jMenuItem17.setText("Libro Diario");
+        jMenuItem17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem17ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem17);
+
         jMenuItem14.setText("Balance de Saldos");
         jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -331,7 +332,7 @@ public class Principal extends javax.swing.JFrame {
             }
         });
         jMenu4.add(jMenuItem15);
-
+      
         item_crear_cuenta_bancaria.setText("Nueva Cuenta Bancaria");
         item_crear_cuenta_bancaria.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -347,6 +348,13 @@ public class Principal extends javax.swing.JFrame {
             }
         });
         jMenu4.add(item_crear_cheque);
+        jMenuItem16.setText("Crear Cuenta");
+        jMenuItem16.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem16ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem16);
 
         menu.add(jMenu4);
 
@@ -479,7 +487,8 @@ public class Principal extends javax.swing.JFrame {
             consulta.next();
             String[] meses = {"", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Juilo", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
             Fecha = consulta.getString(3)+" de "+meses[consulta.getInt(2)]+" de "+consulta.getString(1);
-            
+            Float capital = Float.parseFloat(Activo)-Float.parseFloat(Pasivo);
+            conexion.createStatement().executeUpdate("UPDATE cuentas SET cuentas.Saldo = "+capital+" WHERE cuentas.Id = 48");
             Map parametros  = new HashMap();
             parametros.put("Total_Activo", Activo);
             parametros.put("Total_Pasivo", Pasivo);
@@ -503,6 +512,13 @@ public class Principal extends javax.swing.JFrame {
         ControlHorasExtra control = new ControlHorasExtra(conexion, this);
         control.setVisible(control.getHacerVisible());
     }//GEN-LAST:event_item_control_horas_extraActionPerformed
+    private void jMenuItem16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem16ActionPerformed
+        new Crear_Cuentas(conexion).setVisible(true);
+    }//GEN-LAST:event_jMenuItem16ActionPerformed
+
+    private void jMenuItem17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem17ActionPerformed
+        new Libro_diario(conexion).setVisible(true);
+    }//GEN-LAST:event_jMenuItem17ActionPerformed
 
     private void item_ver_generar_planillaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_item_ver_generar_planillaActionPerformed
         VerPlanilla planilla = new VerPlanilla(conexion, this);
@@ -579,6 +595,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem13;
     private javax.swing.JMenuItem jMenuItem14;
     private javax.swing.JMenuItem jMenuItem15;
+    private javax.swing.JMenuItem jMenuItem16;
+    private javax.swing.JMenuItem jMenuItem17;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
