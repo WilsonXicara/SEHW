@@ -3,8 +3,8 @@
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<queryString language="SQL">
-		<![CDATA[SELECT cuentas.saldo,cuentas.nombre FROM cuentas WHERE cuentas.Patrimonio = 1;]]>
+	<queryString>
+		<![CDATA[SELECT cuentas.saldo,cuentas.nombre FROM cuentas WHERE cuentas.Patrimonio = 1 AND cuentas.Saldo != 0;]]>
 	</queryString>
 	<field name="saldo" class="java.lang.Float">
 		<fieldDescription><![CDATA[]]></fieldDescription>

@@ -3,8 +3,8 @@
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<queryString language="SQL">
-		<![CDATA[SELECT cuentas.Nombre, cuentas.Saldo FROM cuentas WHERE cuentas.Pasivo = 1 AND cuentas.Corriente = 1;]]>
+	<queryString>
+		<![CDATA[SELECT cuentas.Nombre, cuentas.Saldo FROM cuentas WHERE cuentas.Pasivo = 1 AND cuentas.Corriente = 1 AND cuentas.Saldo != 0;]]>
 	</queryString>
 	<field name="Nombre" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
@@ -20,16 +20,9 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="40" splitType="Stretch">
+		<band height="20" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="332" height="20" uuid="79d2bdfc-bb42-4744-903a-1edc3e9f960a"/>
-				<textElement textAlignment="Center">
-					<font size="14" isBold="true"/>
-				</textElement>
-				<text><![CDATA[PASIVO]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="0" y="20" width="100" height="20" uuid="53cbe0b5-35c1-4822-95ce-ee28211670bb"/>
+				<reportElement x="0" y="0" width="100" height="20" uuid="53cbe0b5-35c1-4822-95ce-ee28211670bb"/>
 				<textElement>
 					<font size="12" isBold="true" isUnderline="true"/>
 				</textElement>
