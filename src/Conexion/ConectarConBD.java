@@ -24,8 +24,8 @@ public class ConectarConBD {
 
     public ConectarConBD() {
         nombreBD = "ecegua";
-        usuarioBD = "root";
-        contraseñaBD = "";
+        usuarioBD = "eceguaxela";
+        contraseñaBD = "usuario";
         conectar_con_bd();
     }
     private void conectar_con_bd() {

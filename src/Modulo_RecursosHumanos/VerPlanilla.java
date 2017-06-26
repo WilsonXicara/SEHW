@@ -111,6 +111,7 @@ public class VerPlanilla extends javax.swing.JFrame {
             listaIDPagos = new ArrayList<>();
             listaIDPartidasDePagos = new ArrayList<>();
             listaPagoModificado = new ArrayList<>();
+            fecha_pagos.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla.
         } catch (SQLException ex) {
             hacerVisible = false;

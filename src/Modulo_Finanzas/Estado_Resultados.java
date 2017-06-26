@@ -5,9 +5,17 @@
  */
 package Modulo_Finanzas;
 
+import Excepciones.ExcepcionDatosIncorrectos;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -16,7 +24,7 @@ import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
- * @author USUARIO
+ * @author Wilson Xicará y Hugo Tzul
  */
 public class Estado_Resultados extends javax.swing.JFrame {
     Connection base;
@@ -33,6 +41,9 @@ public class Estado_Resultados extends javax.swing.JFrame {
     public Estado_Resultados(Connection base) {
         initComponents();
         this.base = base;
+        fecha_inicio.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
+        fecha_fin.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
+        this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -43,33 +54,126 @@ public class Estado_Resultados extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        Tx_fecha_inicio = new javax.swing.JTextField();
+        crear_ver_estado_resultados = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        Tx_fecha_final = new javax.swing.JTextField();
+        fecha_inicio = new com.toedter.calendar.JDateChooser();
+        jLabel1 = new javax.swing.JLabel();
+        fecha_fin = new com.toedter.calendar.JDateChooser();
+        jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         Tx_inv_inicial = new javax.swing.JTextField();
         Tx_inv_final = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Estado de Resultados");
 
-        jLabel1.setText("Fecha Inicio:");
-
-        jLabel2.setText("Fecha Final:");
-
-        jLabel3.setText("Valor Inventario Inicial:");
-
-        jLabel4.setText("Valor Inventario Final:");
-
-        jButton1.setText("Crear");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        crear_ver_estado_resultados.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        crear_ver_estado_resultados.setText("Crear y Ver Estado de Resultados");
+        crear_ver_estado_resultados.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                crear_ver_estado_resultadosActionPerformed(evt);
             }
         });
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Período:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel2.setText("Fecha Final:");
+
+        fecha_inicio.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel1.setText("Fecha Inicio:");
+
+        fecha_fin.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fecha_fin, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fecha_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(fecha_inicio, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2)
+                    .addComponent(fecha_fin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Datos iniciales del período:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
+
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel3.setText("Valor Inventario Inicial: Q.");
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel4.setText("Valor Inventario Final: Q.");
+
+        Tx_inv_inicial.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        Tx_inv_inicial.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                Tx_inv_inicialFocusLost(evt);
+            }
+        });
+        Tx_inv_inicial.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                Tx_inv_inicialKeyTyped(evt);
+            }
+        });
+
+        Tx_inv_final.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        Tx_inv_final.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                Tx_inv_finalFocusLost(evt);
+            }
+        });
+        Tx_inv_final.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                Tx_inv_finalKeyTyped(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(Tx_inv_inicial)
+                    .addComponent(Tx_inv_final, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(Tx_inv_inicial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(Tx_inv_final, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -78,77 +182,109 @@ public class Estado_Resultados extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Tx_fecha_inicio))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Tx_fecha_final))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(Tx_inv_inicial)
-                            .addComponent(Tx_inv_final))))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(158, 158, 158)
-                .addComponent(jButton1)
-                .addContainerGap(193, Short.MAX_VALUE))
+                .addGap(37, 37, 37)
+                .addComponent(crear_ver_estado_resultados)
+                .addContainerGap(66, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(Tx_fecha_inicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addComponent(Tx_fecha_final, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(Tx_inv_inicial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(Tx_inv_final, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(7, 7, 7)
-                .addComponent(jButton1)
-                .addContainerGap())
+                .addComponent(crear_ver_estado_resultados)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void crear_ver_estado_resultadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crear_ver_estado_resultadosActionPerformed
         try {
+            validar_datos();
+            Calendar fechaI = fecha_inicio.getCalendar(), fechaF = fecha_fin.getCalendar();
+            String[] meses = {"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"};
             String Inventario_Inicial= Tx_inv_inicial.getText().trim(); //Id de la relacion entre año y mes
             String Inventario_Final= Tx_inv_final.getText().trim(); //Mes de la planilla
-            String Fecha_Inicio = Tx_fecha_inicio.getText().trim(); //Año de la planilla
-            String Fecha_Final = Tx_fecha_final.getText().trim();
             base.createStatement().executeQuery("CALL generarEstadoDeResultados("+Inventario_Inicial+","+Inventario_Final+")");
             Map parametros  = new HashMap();
             parametros.put("Inventario_Inicial", Inventario_Inicial);
             parametros.put("Inventario_Final", Inventario_Final);
-            parametros.put("Fecha_Inicio", Fecha_Inicio);
-            parametros.put("Fecha_Final", Fecha_Final);
+            parametros.put("Fecha_Inicio", ""+fechaI.get(Calendar.DAY_OF_MONTH)+" de "+meses[fechaI.get(Calendar.MONTH)]);
+            parametros.put("Fecha_Final", ""+fechaF.get(Calendar.DAY_OF_MONTH)+" de "+meses[fechaF.get(Calendar.MONTH)]+" del "+fechaI.get(Calendar.YEAR));
             
             JasperReport reporte = JasperCompileManager.compileReport("src\\Reportes\\Estado_Resultados.jrxml");
             JasperPrint a = JasperFillManager.fillReport(reporte, parametros,base);
             
             JasperViewer.viewReport(a,false);
-        } catch (Exception e) {
-            System.out.println(e);
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(Estado_Resultados.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error en procedimiento al intentar generar el Estado de Resultados.\n\nDescripción:\n"+ex.getMessage(), "Error en Base de Datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(Estado_Resultados.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JRException ex) {
+            JOptionPane.showMessageDialog(this, "Error al intentar mostrar el Estado de Resultados", "Error al generar vista", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(Estado_Resultados.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_crear_ver_estado_resultadosActionPerformed
 
+    private void Tx_inv_inicialKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Tx_inv_inicialKeyTyped
+        char tecla = evt.getKeyChar();
+        if (tecla == '.') {
+            if (Tx_inv_inicial.getText().contains("."))
+                evt.consume();  // No se permite ingresar un valor como NN..N (con dos puntos consecutivos)
+            else if (Tx_inv_inicial.getText().length() == 0)
+                Tx_inv_inicial.setText("0");   // Si la primera tecla es '.' se convierte en '0.'
+        } else if (!Pattern.compile("\\d").matcher(String.valueOf(evt.getKeyChar())).matches())
+            evt.consume();
+    }//GEN-LAST:event_Tx_inv_inicialKeyTyped
+
+    private void Tx_inv_inicialFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_Tx_inv_inicialFocusLost
+        if (Tx_inv_inicial.getText().length() == 0)
+            Tx_inv_inicial.setText("0.00");
+        else if (Tx_inv_inicial.getText().indexOf(".") == (Tx_inv_inicial.getText().length()-1))
+            Tx_inv_inicial.setText(Tx_inv_inicial.getText()+"00");
+        else
+            Tx_inv_inicial.setText(String.format("%.2f", Float.parseFloat(Tx_inv_inicial.getText())));
+    }//GEN-LAST:event_Tx_inv_inicialFocusLost
+
+    private void Tx_inv_finalKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_Tx_inv_finalKeyTyped
+        char tecla = evt.getKeyChar();
+        if (tecla == '.') {
+            if (Tx_inv_final.getText().contains("."))
+                evt.consume();  // No se permite ingresar un valor como NN..N (con dos puntos consecutivos)
+            else if (Tx_inv_final.getText().length() == 0)
+                Tx_inv_final.setText("0");   // Si la primera tecla es '.' se convierte en '0.'
+        } else if (!Pattern.compile("\\d").matcher(String.valueOf(evt.getKeyChar())).matches())
+            evt.consume();
+    }//GEN-LAST:event_Tx_inv_finalKeyTyped
+
+    private void Tx_inv_finalFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_Tx_inv_finalFocusLost
+        if (Tx_inv_final.getText().length() == 0)
+            Tx_inv_final.setText("0.00");
+        else if (Tx_inv_final.getText().indexOf(".") == (Tx_inv_final.getText().length()-1))
+            Tx_inv_final.setText(Tx_inv_final.getText()+"00");
+        else
+            Tx_inv_final.setText(String.format("%.2f", Float.parseFloat(Tx_inv_final.getText())));
+    }//GEN-LAST:event_Tx_inv_finalFocusLost
+
+    private void validar_datos() throws ExcepcionDatosIncorrectos {
+        if (fecha_inicio.getDate() == null)
+            throw new ExcepcionDatosIncorrectos("Especifique la Fecha de Inicio");
+        if (fecha_fin.getDate() == null)
+            throw new ExcepcionDatosIncorrectos("Especifique la Fecha de Fin");
+        if (Tx_inv_inicial.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique el valor del Inventario Inicial");
+        if (Tx_inv_final.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique el valor del Inventario Final");
+    }
     /**
      * @param args the command line arguments
      */
@@ -185,14 +321,16 @@ public class Estado_Resultados extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField Tx_fecha_final;
-    private javax.swing.JTextField Tx_fecha_inicio;
     private javax.swing.JTextField Tx_inv_final;
     private javax.swing.JTextField Tx_inv_inicial;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton crear_ver_estado_resultados;
+    private com.toedter.calendar.JDateChooser fecha_fin;
+    private com.toedter.calendar.JDateChooser fecha_inicio;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     // End of variables declaration//GEN-END:variables
 }

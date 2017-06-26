@@ -5,17 +5,63 @@
  */
 package Modulo_Finanzas;
 
+import Excepciones.ExcepcionDatosIncorrectos;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
- * @author pc
+ * @author Wilson Xicará
  */
 public class CrearCuentaBancaria extends javax.swing.JFrame {
-
+    private Connection conexion;
+    private JFrame ventanaPadre;
+    private boolean hacerVisible;
+    private DefaultTableModel modelCuentas;
     /**
      * Creates new form CrearCuentaBancaria
      */
     public CrearCuentaBancaria() {
         initComponents();
+    }
+    public CrearCuentaBancaria(Connection conexion, JFrame ventanaPadre) {
+        initComponents();
+        this.conexion = conexion;
+        this.ventanaPadre = ventanaPadre;
+        hacerVisible = true;
+        
+        // Obtengo el listado de Cuentas Bancarias existentes, desde la Base de Datos
+        try {
+            Statement sentencia = conexion.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet cConsulta = sentencia.executeQuery("SELECT NombreBanco, NumeroCuenta, NombrePropietario FROM CuentaBancaria");
+            int cont = 0;
+            modelCuentas = (DefaultTableModel)tabla_cuentas_existentes.getModel();
+            while (cConsulta.next()) {
+                modelCuentas.addRow(new String[]{
+                    ""+(++cont),
+                    cConsulta.getString("NombreBanco"),
+                    cConsulta.getString("NumeroCuenta"),
+                    cConsulta.getString("NombrePropietario")
+                });
+            }
+            // Otras configuraciones importantes
+            jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Cuentas bancarias existentes: "+cont, javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12)));
+            this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla
+        } catch (SQLException ex) {
+            hacerVisible = false;
+            JOptionPane.showMessageDialog(this, "Error al intentar obtener datos.\n\nDescripción:\n"+ex.getMessage(), "Error en conexión", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(CrearCuentaBancaria.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -27,20 +73,132 @@ public class CrearCuentaBancaria extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tabla_cuentas_existentes = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        nombre_banco = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        numero_cuenta = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        nombre_propietario = new javax.swing.JTextField();
+        crear_nueva_cuenta = new javax.swing.JButton();
+        etiqueta_aviso = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Creación de Cuentas Bancarias");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Cuentas bancarias existentes:"));
+
+        tabla_cuentas_existentes.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "No.", "Banco", "Número de Cuenta", "Propietario"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tabla_cuentas_existentes.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        jScrollPane1.setViewportView(tabla_cuentas_existentes);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Información de la nueva Cuenta:"));
 
         jLabel3.setText("Nombre del Banco:");
 
         jLabel4.setText("Número de Cuenta:");
 
+        numero_cuenta.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                numero_cuentaFocusLost(evt);
+            }
+        });
+        numero_cuenta.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                numero_cuentaKeyTyped(evt);
+            }
+        });
+
         jLabel5.setText("Nombre del Propietario:");
+
+        crear_nueva_cuenta.setText("Crear Cuenta Bancaria");
+        crear_nueva_cuenta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                crear_nueva_cuentaActionPerformed(evt);
+            }
+        });
+
+        etiqueta_aviso.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nombre_banco, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(numero_cuenta, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(etiqueta_aviso))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nombre_propietario, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(172, 172, 172)
+                        .addComponent(crear_nueva_cuenta)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(nombre_banco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(numero_cuenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(etiqueta_aviso))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(nombre_propietario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(crear_nueva_cuenta))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -49,41 +207,85 @@ public class CrearCuentaBancaria extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(108, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(217, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void numero_cuentaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_numero_cuentaKeyTyped
+        if (!Pattern.compile("\\d").matcher(String.valueOf(evt.getKeyChar())).matches() || numero_cuenta.getText().length() == 10)
+            evt.consume();
+    }//GEN-LAST:event_numero_cuentaKeyTyped
+
+    private void numero_cuentaFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_numero_cuentaFocusLost
+        etiqueta_aviso.setText(numero_cuenta.getText().length()==10 ? "" : "Número de Cuenta incompleto");
+    }//GEN-LAST:event_numero_cuentaFocusLost
+
+    private void crear_nueva_cuentaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crear_nueva_cuentaActionPerformed
+        try {
+            validar_datos();
+            // Creación de la nueva Cuenta Bancaria
+            String instruccion = "INSERT INTO CuentaBancaria(NombreBanco, NumeroCuenta, NombrePropietario) VALUES(";
+                instruccion+= "'"+nombre_banco.getText()+"', ";
+                instruccion+= "'"+numero_cuenta.getText()+"', ";
+                instruccion+= "'"+nombre_propietario.getText()+"')";
+            conexion.prepareStatement(instruccion).executeUpdate();
+            
+            // Agregación de los datos de la nueva Cuenta a la Tabla, y limpieza de campos
+            modelCuentas.addRow(new String[]{
+                ""+(tabla_cuentas_existentes.getRowCount()+1),
+                nombre_banco.getText(),
+                numero_cuenta.getText(),
+                nombre_propietario.getText()
+            });
+            nombre_banco.setText("");
+            numero_cuenta.setText("");
+            nombre_propietario.setText("");
+            jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Cuentas bancarias existentes: "+tabla_cuentas_existentes.getRowCount(), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12)));
+        } catch (ExcepcionDatosIncorrectos ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error en datos", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(CrearCuentaBancaria.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al intentar crear la nueva Cuenta Bancaria.\n\nDescripción:\n"+ex.getMessage(), "Error de conexión", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(CrearCuentaBancaria.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_crear_nueva_cuentaActionPerformed
+
+    private void validar_datos() throws ExcepcionDatosIncorrectos {
+        if (nombre_banco.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique el Banco al que pertenece la Cuenta");
+        if (numero_cuenta.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("No ha especificado el Número de Cuenta");
+        if (numero_cuenta.getText().length() != 10)
+            throw new ExcepcionDatosIncorrectos("El Número de Cuenta está incompleto");
+        if (nombre_propietario.getText().length() == 0)
+            throw new ExcepcionDatosIncorrectos("Especifique el Propietario de la Cuenta");
+        // Verificación de que no exista una cuenta con Banco y Número de Cuenta igual al que se quiere crear
+        int cantidad = tabla_cuentas_existentes.getRowCount();
+        String bancoC = nombre_banco.getText(), numeroC = numero_cuenta.getText();
+        for(int i=0; i<cantidad; i++)
+            if (bancoC.equalsIgnoreCase((String)tabla_cuentas_existentes.getValueAt(i, 1))
+                    && numeroC.equalsIgnoreCase((String)tabla_cuentas_existentes.getValueAt(i, 2)))
+                throw new ExcepcionDatosIncorrectos("Ya existe una cuenta con No. '"+numeroC+"' en el banco '"+bancoC+"'");
+    }
+    private String anteponer_ceros(String texto, int cantidadCaracteres) {
+        while (texto.length() < cantidadCaracteres)
+            texto = "0"+texto;
+        return texto;
+    }
+    public boolean getHacerVisible() { return hacerVisible; }
     /**
      * @param args the command line arguments
      */
@@ -120,11 +322,17 @@ public class CrearCuentaBancaria extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton crear_nueva_cuenta;
+    private javax.swing.JLabel etiqueta_aviso;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField nombre_banco;
+    private javax.swing.JTextField nombre_propietario;
+    private javax.swing.JTextField numero_cuenta;
+    private javax.swing.JTable tabla_cuentas_existentes;
     // End of variables declaration//GEN-END:variables
 }
