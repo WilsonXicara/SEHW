@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Balance de Saldos" language="groovy" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="2907998e-5a57-4bdd-8827-5d0aca865ca3">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="197"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["C:\\Users\\USUARIO\\Desktop\\U.R.L\\Tercer Interciclo\\Teoría de Sistemas\\SEHW-1\\src\\Reportes\\"]]></defaultValueExpression>
 	</parameter>
@@ -10,7 +10,7 @@
 	<parameter name="Total_Pasivo" class="java.lang.String"/>
 	<parameter name="Fecha" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT cuentas.Nombre, cuentas.Saldo FROM cuentas WHERE cuentas.Patrimonio = 1;]]>
+		<![CDATA[SELECT cuentas.Nombre, cuentas.Saldo FROM cuentas WHERE cuentas.Patrimonio = 1 AND cuentas.Saldo != 0;]]>
 	</queryString>
 	<field name="Nombre" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>
@@ -38,102 +38,123 @@
 		<band/>
 	</detail>
 	<summary>
-		<band height="327" splitType="Stretch">
+		<band height="409" splitType="Stretch">
 			<staticText>
-				<reportElement positionType="Float" x="0" y="79" width="100" height="20" uuid="26e922cf-b4c3-47d1-83a4-ec3a8d28c2af"/>
+				<reportElement positionType="Float" x="0" y="99" width="100" height="20" uuid="26e922cf-b4c3-47d1-83a4-ec3a8d28c2af"/>
 				<textElement>
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Total Activo:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="168" width="100" height="20" uuid="038abcd6-4c3a-4d8c-9083-36764be09846"/>
+				<reportElement positionType="Float" x="0" y="207" width="100" height="20" uuid="038abcd6-4c3a-4d8c-9083-36764be09846"/>
 				<textElement>
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Total Pasivo:]]></text>
 			</staticText>
 			<textField pattern="#,##0.00">
-				<reportElement positionType="Float" x="452" y="79" width="120" height="20" uuid="3c68d21b-1555-4262-b924-1f6fe4892dae"/>
+				<reportElement positionType="Float" x="452" y="99" width="120" height="20" uuid="3c68d21b-1555-4262-b924-1f6fe4892dae"/>
 				<textElement textAlignment="Right">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{Total_Activo}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0.00">
-				<reportElement positionType="Float" x="452" y="168" width="120" height="20" uuid="001be4e4-0295-4c49-a726-bc4cd5d532e4"/>
+				<reportElement positionType="Float" x="452" y="207" width="120" height="20" uuid="001be4e4-0295-4c49-a726-bc4cd5d532e4"/>
 				<textElement textAlignment="Right">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{Total_Pasivo}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="Float" x="0" y="227" width="189" height="20" uuid="8563a3cb-51bf-43a5-b867-90fd235dd24c"/>
+				<reportElement positionType="Float" x="0" y="266" width="189" height="20" uuid="8563a3cb-51bf-43a5-b867-90fd235dd24c"/>
 				<textElement>
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Suma Total Pasivo y Patrimonio Neto :]]></text>
 			</staticText>
 			<textField pattern="#,##0.00">
-				<reportElement positionType="Float" x="452" y="227" width="120" height="20" uuid="62ef5e9f-81f4-4265-8133-0d6123c27350"/>
+				<reportElement positionType="Float" x="452" y="266" width="120" height="20" uuid="62ef5e9f-81f4-4265-8133-0d6123c27350"/>
 				<textElement textAlignment="Right">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{Total_Activo}-$P{Total_Pasivo}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement positionType="Float" x="100" y="307" width="132" height="1" uuid="4d47ec95-215c-4641-bcb7-f2fbe0be1ec6"/>
+				<reportElement positionType="Float" x="112" y="389" width="132" height="1" uuid="4d47ec95-215c-4641-bcb7-f2fbe0be1ec6"/>
 			</line>
 			<staticText>
-				<reportElement positionType="Float" x="100" y="307" width="132" height="20" uuid="7c79ad35-a449-434a-b9de-e19cf8b0692c"/>
+				<reportElement positionType="Float" x="112" y="389" width="132" height="20" uuid="7c79ad35-a449-434a-b9de-e19cf8b0692c"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[Contabilidad]]></text>
 			</staticText>
 			<line>
-				<reportElement positionType="Float" x="338" y="306" width="129" height="1" uuid="7ad55923-cff7-4191-a8f1-a407ef9c3600"/>
+				<reportElement positionType="Float" x="350" y="388" width="129" height="1" uuid="7ad55923-cff7-4191-a8f1-a407ef9c3600"/>
 			</line>
 			<staticText>
-				<reportElement positionType="Float" x="338" y="307" width="129" height="20" uuid="8d543890-8c99-45eb-92e6-58ea90180b14"/>
+				<reportElement positionType="Float" x="350" y="389" width="129" height="20" uuid="8d543890-8c99-45eb-92e6-58ea90180b14"/>
 				<textElement textAlignment="Center"/>
 				<text><![CDATA[Gerencia]]></text>
 			</staticText>
 			<line>
-				<reportElement positionType="Float" x="452" y="99" width="120" height="1" uuid="f77a973a-6aa1-4eee-ad9c-1752b55a281e"/>
+				<reportElement positionType="Float" x="452" y="119" width="120" height="1" uuid="f77a973a-6aa1-4eee-ad9c-1752b55a281e"/>
 				<graphicElement>
 					<pen lineWidth="4.25" lineStyle="Double" lineColor="#FF0000"/>
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement positionType="Float" x="452" y="246" width="120" height="1" uuid="cc8a227e-3109-4568-a4f8-b85031c18390"/>
+				<reportElement positionType="Float" x="452" y="285" width="120" height="1" uuid="cc8a227e-3109-4568-a4f8-b85031c18390"/>
 				<graphicElement>
 					<pen lineWidth="4.25" lineStyle="Double" lineColor="#FF0000"/>
 				</graphicElement>
 			</line>
 			<subreport>
-				<reportElement positionType="Float" x="0" y="0" width="572" height="44" uuid="072bc5bd-eabf-408e-80b8-e7af5d41e4d1"/>
+				<reportElement positionType="Float" x="0" y="20" width="572" height="44" uuid="072bc5bd-eabf-408e-80b8-e7af5d41e4d1"/>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["src\\Reportes\\Activo_corriente.jasper"]]></subreportExpression>
 			</subreport>
 			<subreport>
-				<reportElement positionType="Float" x="0" y="44" width="572" height="35" uuid="1c80223c-0d93-4b8e-b362-179b5768388a"/>
+				<reportElement positionType="Float" x="0" y="64" width="572" height="35" uuid="1c80223c-0d93-4b8e-b362-179b5768388a"/>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["src\\Reportes\\Activo_NoCorriente.jasper"]]></subreportExpression>
 			</subreport>
 			<subreport>
-				<reportElement positionType="Float" x="0" y="100" width="572" height="41" uuid="a7960975-f24c-4804-8010-f787a314e07a"/>
+				<reportElement positionType="Float" x="0" y="139" width="572" height="41" uuid="a7960975-f24c-4804-8010-f787a314e07a"/>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["src\\Reportes\\Pasivo_Corriente.jasper"]]></subreportExpression>
 			</subreport>
 			<subreport>
-				<reportElement positionType="Float" x="0" y="141" width="572" height="27" uuid="2cffdecf-cb97-40d9-ba42-31cf608baf94"/>
+				<reportElement positionType="Float" x="0" y="180" width="572" height="27" uuid="2cffdecf-cb97-40d9-ba42-31cf608baf94"/>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["src\\Reportes\\Pasivo_NoCorriente.jasper"]]></subreportExpression>
 			</subreport>
 			<subreport>
-				<reportElement positionType="Float" x="0" y="188" width="572" height="39" uuid="ac2dd6fd-b2d9-4971-bde0-b251273b884b"/>
+				<reportElement positionType="Float" x="0" y="227" width="572" height="39" uuid="ac2dd6fd-b2d9-4971-bde0-b251273b884b"/>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA["src\\Reportes\\Patrimonio.jasper"]]></subreportExpression>
 			</subreport>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="332" height="20" uuid="5869d8b7-af8b-4b28-8b89-c713351306c4"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ACTIVO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="119" width="332" height="20" uuid="2dbe6c8f-6b51-436b-83e2-89b4f9c8c56c"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PASIVO]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="0" y="311" width="572" height="20" uuid="04a6bbd9-1821-4b74-b512-55500131b98b"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Quetzaltenango, "+$P{Fecha}]]></textFieldExpression>
+			</textField>
 		</band>
 	</summary>
 </jasperReport>

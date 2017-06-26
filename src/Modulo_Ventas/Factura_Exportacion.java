@@ -248,9 +248,19 @@ public class Factura_Exportacion extends javax.swing.JFrame {
                         Statement b = base.createStatement();
                         ResultSet consultab = b.executeQuery("SELECT factura_exportacion.Id FROM factura_exportacion WHERE factura_exportacion.Serie = '"+Serie+"' AND factura_exportacion.Numero = '"+Numero+"';");
                         if(!consultab.next()){
-                            String Instruccion = "INSERT INTO factura_exportacion(Serie,Numero,Precio,Cantidad,Fecha,Clientes_exportacion_Id,Cafe_Id) VALUES('"+Serie+"','"+Numero+"',"+Precio+","+Cantidad+",NOW(),"+Id_Cliente.get(posicion_cliente)+","+Id_cafe.get(posicion_cafe)+");";
-                            PreparedStatement a = base.prepareStatement(Instruccion);
                             ResultSet cConsulta;
+                            int idCicloContable, idPartida, numeroPartida;
+                            PreparedStatement a = base.prepareStatement("");
+                            // Obtención del ID del Ciclo Contable de la Fecha actual
+                            cConsulta = a.executeQuery("SELECT CicloContable.Id FROM CicloContable "
+                                    + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
+                                    + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id "
+                                    + "WHERE Anio.Anio = YEAR(NOW()) AND Mes.Id = MONTH(NOW())");
+                            cConsulta.next();
+                            idCicloContable = cConsulta.getInt(1);
+                            String Instruccion = "INSERT INTO factura_exportacion(Serie,Numero,Precio,Cantidad,Fecha,Clientes_exportacion_Id,Cafe_Id,CicloContable_Id) VALUES('"+Serie+"','"+Numero+"',"+Precio+","+Cantidad+",NOW(),"+Id_Cliente.get(posicion_cliente)+","+Id_cafe.get(posicion_cafe)+","+idCicloContable+");";
+                             a = base.prepareStatement(Instruccion);
+                            
                             a.executeUpdate();
                             Tx_serie.setText("");
                             Tx_numero.setText("");
@@ -259,14 +269,7 @@ public class Factura_Exportacion extends javax.swing.JFrame {
                             
                             // CREACIÓN DE LA PARTIDA ASOCIADA A LA FACTURA DE EXPORTACIÓN CREADA
                             String instruccion;
-                            int idCicloContable, idPartida, numeroPartida;
-                            // Obtención del ID del Ciclo Contable de la Fecha actual
-                            cConsulta = a.executeQuery("SELECT CicloContable.Id FROM CicloContable "
-                                    + "INNER JOIN Anio ON CicloContable.Anio_Id = Anio.Id "
-                                    + "INNER JOIN Mes ON CicloContable.Mes_Id = Mes.Id "
-                                    + "WHERE Anio.Anio = YEAR(NOW()) AND Mes.Id = MONTH(NOW())");
-                            cConsulta.next();
-                            idCicloContable = cConsulta.getInt(1);
+                            
                             // Obtención del Número de Partida que tendrá la nueva partida asociada a la Factura Especial
                             cConsulta = a.executeQuery("SELECT COUNT(Numero), MAX(Numero) FROM Partida WHERE CicloContable_Id = "+idCicloContable);
                             cConsulta.next();

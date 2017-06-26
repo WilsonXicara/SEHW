@@ -3,8 +3,8 @@
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<queryString language="SQL">
-		<![CDATA[SELECT cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Perdida = 1 ANd cuentas.Id != 44 AND cuentas.Id != 49 AND cuentas.Id !=50 AND cuentas.Id != 52;]]>
+	<queryString>
+		<![CDATA[SELECT cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Perdida = 1 ANd cuentas.Id != 44 AND cuentas.Id != 49 AND cuentas.Id !=50 AND cuentas.Id != 52 AND cuentas.Saldo!=0;]]>
 	</queryString>
 	<field name="Nombre" class="java.lang.String">
 		<fieldDescription><![CDATA[]]></fieldDescription>

@@ -5,7 +5,7 @@
 	<property name="ireport.y" value="0"/>
 	<parameter name="Inventario_Inicial" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[SELECT cuentas.Id,cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Id = 44 OR cuentas.Id = 52 ;]]>
+		<![CDATA[SELECT cuentas.Id,cuentas.Nombre,cuentas.Saldo FROM cuentas WHERE cuentas.Id = 44 OR cuentas.Id = 52 AND cuentas.Saldo!= 0;]]>
 	</queryString>
 	<field name="Id" class="java.lang.Integer">
 		<fieldDescription><![CDATA[]]></fieldDescription>

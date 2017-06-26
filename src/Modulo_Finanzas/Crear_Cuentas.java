@@ -10,8 +10,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -23,6 +25,8 @@ import javax.swing.table.TableRowSorter;
 public class Crear_Cuentas extends javax.swing.JFrame {
     Connection base;
     private TableRowSorter filtro;
+    ArrayList<String> nombre;
+    DefaultTableModel modelo;
     /**
      * Creates new form Crear_Cuentas
      */
@@ -33,7 +37,7 @@ public class Crear_Cuentas extends javax.swing.JFrame {
      * Creates new form Crear_Cuentas
      */
     public Crear_Cuentas(Connection base) {
-        try {
+        
             initComponents();
             this.base = base;
             tipo.add(Bt_activo);
@@ -42,42 +46,10 @@ public class Crear_Cuentas extends javax.swing.JFrame {
             tipo.add(Bt_perdida);
             Corriente.add(Bt_corriente);
             Corriente.add(Bt_nocorriente);
-            Bt_activo.setSelected(true);
-            Bt_corriente.setSelected(true);
-            Statement b = base.createStatement();
-            ResultSet consulta = b.executeQuery("SELECT cuentas.Activo,cuentas.Pasivo,cuentas.Perdida,cuentas.Ganancia,cuentas.Corriente,cuentas.Patrimonio, cuentas.Nombre FROM cuentas");
-            DefaultTableModel tabla = (DefaultTableModel) cuentas.getModel();
-           
-            String[] agregar = new String[2];
-            while(consulta.next()){
-                String tipo = "";
-                if(consulta.getBoolean(1)){
-                    if(consulta.getBoolean(5) ){
-                        tipo = "Activo(Corriente)";
-                    }else{
-                        tipo = "Activo(No corriente)";
-                    }
-                }else if(consulta.getBoolean(2)){
-                    if(consulta.getBoolean(5) ){
-                        tipo = "Pasivo(Corriente)";
-                    }else{
-                        tipo = "Pasivo(No Corriente)";
-                    }
-                }else if(consulta.getBoolean(3)){
-                    tipo = "Perdida";
-                }else if(consulta.getBoolean(4)){
-                    tipo = "Ganancia";
-                }else if(consulta.getBoolean(6)){
-                    tipo = "Patrimonio";
-                }
-                
-                agregar[0] = consulta.getString(7);
-                agregar[1] = tipo;
-                tabla.addRow(agregar);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Crear_Cuentas.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            modelo = (DefaultTableModel) cuentas.getModel();
+            
+            Actualizar_tabla();
+        
     }
 
     /**
@@ -104,7 +76,7 @@ public class Crear_Cuentas extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jLabel1.setText("Nombre :");
 
@@ -188,7 +160,7 @@ public class Crear_Cuentas extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Cancelar");
+        jButton2.setText("Salir");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -290,6 +262,7 @@ public class Crear_Cuentas extends javax.swing.JFrame {
     }//GEN-LAST:event_Bt_GananciaItemStateChanged
 
     private void cadenaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cadenaKeyTyped
+        filtro = new TableRowSorter(cuentas.getModel());
         filtro.setRowFilter(RowFilter.regexFilter(cadena.getText(), 0));
         cuentas.setRowSorter(filtro);
     }//GEN-LAST:event_cadenaKeyTyped
@@ -299,11 +272,33 @@ public class Crear_Cuentas extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        int cantidad = cuentas.getRowCount();
-        if(cantidad == 0){
-            
+        String nombre = cadena.getText().trim();
+        if(!this.nombre.contains(nombre)){
+            try {
+                cadena.setText("");
+                if(Bt_activo.isSelected()){
+                    if(Bt_corriente.isSelected()){
+                        base.createStatement().executeUpdate("INSERT INTO cuentas(cuentas.Nombre,cuentas.Activo,cuentas.Corriente) VALUES('"+nombre+"',1,1);");
+                    }else{
+                        base.createStatement().executeUpdate("INSERT INTO cuentas(cuentas.Nombre,cuentas.Activo,cuentas.Corriente) VALUES('"+nombre+"',1,0);");
+                    }
+                }else if(Bt_pasivo.isSelected()){
+                    if(Bt_corriente.isSelected()){
+                        base.createStatement().executeUpdate("INSERT INTO cuentas(cuentas.Nombre,cuentas.Pasivo,cuentas.Corriente) VALUES('"+nombre+"',1,1);");
+                    }else{
+                        base.createStatement().executeUpdate("INSERT INTO cuentas(cuentas.Nombre,cuentas.Pasivo,cuentas.Corriente) VALUES('"+nombre+"',1,0);");
+                    }
+                }else if(Bt_perdida.isSelected()){
+                        base.createStatement().executeUpdate("INSERT INTO cuentas(cuentas.Nombre,cuentas.Perdida) VALUES('"+nombre+"',1);");
+                }else if(Bt_Ganancia.isSelected()){
+                        base.createStatement().executeUpdate("INSERT INTO cuentas(cuentas.Nombre,cuentas.Ganancia) VALUES('"+nombre+"',1);");
+                }
+                Actualizar_tabla();
+            } catch (SQLException ex) {
+                        Logger.getLogger(Crear_Cuentas.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }else{
-            
+            JOptionPane.showMessageDialog(this, "La cuenta ya existe", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -340,6 +335,51 @@ public class Crear_Cuentas extends javax.swing.JFrame {
                 new Crear_Cuentas().setVisible(true);
             }
         });
+    }
+    public void Actualizar_tabla(){
+        try {
+            filtro = new TableRowSorter(cuentas.getModel());
+            filtro.setRowFilter(RowFilter.regexFilter("", 0));
+            cuentas.setRowSorter(filtro);
+            cuentas.setModel(modelo);
+            nombre = new ArrayList<>();
+            Bt_activo.setSelected(true);
+            Bt_corriente.setSelected(true);
+            Statement b = base.createStatement();
+            ResultSet consulta = b.executeQuery("SELECT cuentas.Activo,cuentas.Pasivo,cuentas.Perdida,cuentas.Ganancia,cuentas.Corriente,cuentas.Patrimonio, cuentas.Nombre FROM cuentas");
+            DefaultTableModel tabla = (DefaultTableModel) cuentas.getModel();
+            tabla.setRowCount(0);
+            String[] agregar = new String[2];
+            while(consulta.next()){
+                String tipo = "";
+                if(consulta.getBoolean(1)){
+                    if(consulta.getBoolean(5) ){
+                        tipo = "Activo(Corriente)";
+                    }else{
+                        tipo = "Activo(No corriente)";
+                    }
+                }else if(consulta.getBoolean(2)){
+                    if(consulta.getBoolean(5) ){
+                        tipo = "Pasivo(Corriente)";
+                    }else{
+                        tipo = "Pasivo(No Corriente)";
+                    }
+                }else if(consulta.getBoolean(3)){
+                    tipo = "Perdida";
+                }else if(consulta.getBoolean(4)){
+                    tipo = "Ganancia";
+                }else if(consulta.getBoolean(6)){
+                    tipo = "Patrimonio";
+                }
+                
+                agregar[0] = consulta.getString(7);
+                agregar[1] = tipo;
+                nombre.add(agregar[0]);
+                tabla.addRow(agregar);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Crear_Cuentas.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
