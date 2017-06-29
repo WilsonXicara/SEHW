@@ -87,6 +87,8 @@ public class CrearCheque extends javax.swing.JFrame {
             listaIDCuentasCargadas = new ArrayList<>();
             modelCuentas = (DefaultTableModel)tabla_cuentas_cargadas.getModel();
             fecha_cheque.getJCalendar().setWeekOfYearVisible(false);  // Para no mostrar el número de semana en el Calendario
+            tabla_cuentas_cargadas.setShowHorizontalLines(true);    // Para mostrar las lineas de la tabla
+            tabla_cuentas_cargadas.setShowVerticalLines(true);
             this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla
         } catch (SQLException ex) {
             hacerVisible = false;

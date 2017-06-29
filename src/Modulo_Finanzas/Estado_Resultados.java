@@ -82,11 +82,13 @@ public class Estado_Resultados extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel2.setText("Fecha Final:");
 
+        fecha_inicio.setDateFormatString("dd/MM/yyyy");
         fecha_inicio.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel1.setText("Fecha Inicio:");
 
+        fecha_fin.setDateFormatString("dd/MM/yyyy");
         fecha_fin.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
