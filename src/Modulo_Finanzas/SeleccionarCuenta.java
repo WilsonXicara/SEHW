@@ -6,7 +6,9 @@
 package Modulo_Finanzas;
 
 import java.util.ArrayList;
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -15,6 +17,7 @@ import javax.swing.table.DefaultTableModel;
 public class SeleccionarCuenta extends javax.swing.JDialog {
     private DefaultTableModel modelCuentas;
     private int indexSeleccionado;
+    private TableRowSorter filtroTabla;
     /**
      * Creates new form SeleccionarCuenta
      */
@@ -31,6 +34,9 @@ public class SeleccionarCuenta extends javax.swing.JDialog {
         for(int i=0; i<cantidad; i++)
             modelCuentas.addRow(new String[]{""+(i+1), listaNombreCuentas.get(i)});
         indexSeleccionado = -1; // Indicador de que no se ha seleccionado una cuenta
+        filtroTabla = new TableRowSorter(tabla_cuentas.getModel()); // Objeto que permite filtrar cuentas de la Tabla
+        tabla_cuentas.setShowHorizontalLines(true);    // Para mostrar las lineas de la tabla
+        tabla_cuentas.setShowVerticalLines(true);
         this.setLocationRelativeTo(null);   // Para centrar esta ventana sobre la pantalla
         setVisible(true);
     }
@@ -47,6 +53,8 @@ public class SeleccionarCuenta extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabla_cuentas = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        nombre_cuenta = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Cuentas Contables");
@@ -90,6 +98,14 @@ public class SeleccionarCuenta extends javax.swing.JDialog {
             tabla_cuentas.getColumnModel().getColumn(1).setPreferredWidth(400);
         }
 
+        jLabel2.setText("Buscar Cuenta:");
+
+        nombre_cuenta.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                nombre_cuentaKeyPressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -97,19 +113,28 @@ public class SeleccionarCuenta extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(nombre_cuenta, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(nombre_cuenta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -118,10 +143,15 @@ public class SeleccionarCuenta extends javax.swing.JDialog {
 
     private void tabla_cuentasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabla_cuentasMouseClicked
         if (evt.getClickCount() == 2) { // Compruebo que haya seleccioado doble clic
-            indexSeleccionado = tabla_cuentas.getSelectedRow();
+            indexSeleccionado = filtroTabla.convertRowIndexToModel(tabla_cuentas.getSelectedRow());
             this.dispose(); // Cierro el JDialog
         }
     }//GEN-LAST:event_tabla_cuentasMouseClicked
+
+    private void nombre_cuentaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nombre_cuentaKeyPressed
+        filtroTabla.setRowFilter(RowFilter.regexFilter(nombre_cuenta.getText(), 1));
+        tabla_cuentas.setRowSorter(filtroTabla);
+    }//GEN-LAST:event_nombre_cuentaKeyPressed
 
     public int getIndexSeleccionado() { return indexSeleccionado; }
     /**
@@ -168,7 +198,9 @@ public class SeleccionarCuenta extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField nombre_cuenta;
     private javax.swing.JTable tabla_cuentas;
     // End of variables declaration//GEN-END:variables
 }

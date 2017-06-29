@@ -123,6 +123,7 @@
         </Component>
         <Component class="com.toedter.calendar.JDateChooser" name="fecha_inicio">
           <Properties>
+            <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="12" style="1"/>
             </Property>
@@ -138,6 +139,7 @@
         </Component>
         <Component class="com.toedter.calendar.JDateChooser" name="fecha_fin">
           <Properties>
+            <Property name="dateFormatString" type="java.lang.String" value="dd/MM/yyyy"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="12" style="1"/>
             </Property>

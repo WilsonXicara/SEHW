@@ -27,6 +27,7 @@ import Modulo_Produccion.CrearRecibo;
 import Modulo_RecursosHumanos.ControlHorasExtra;
 import Modulo_RecursosHumanos.CrearPuesto;
 import Modulo_RecursosHumanos.NuevoPersonal;
+import Modulo_RecursosHumanos.VerPlanilla;
 import Modulo_Ventas.Factura_Exportacion;
 import Modulo_Ventas.Factura_Local;
 import java.awt.Frame;
@@ -332,7 +333,7 @@ public class Principal extends javax.swing.JFrame {
             }
         });
         jMenu4.add(jMenuItem15);
-      
+
         item_crear_cuenta_bancaria.setText("Nueva Cuenta Bancaria");
         item_crear_cuenta_bancaria.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -348,6 +349,7 @@ public class Principal extends javax.swing.JFrame {
             }
         });
         jMenu4.add(item_crear_cheque);
+
         jMenuItem16.setText("Crear Cuenta");
         jMenuItem16.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -364,10 +366,8 @@ public class Principal extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(77, 77, 77))
             .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 824, Short.MAX_VALUE)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
